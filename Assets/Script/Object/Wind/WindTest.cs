@@ -146,8 +146,8 @@ public class WindTest : MonoBehaviour , WindSensable {
 		velocity = Vector2.ClampMagnitude( velocity , maxVel * ( 1f + windVelocity.magnitude / 2f ) );
 		velocity *= 0.98f;
 
-		rotateVel += Vector3.Cross(transform.up, windVelocity * WindRotateSense ).z * Time.deltaTime * 30f + LogicManager.PhysTimeRate;
-
+		rotateVel += Vector3.Cross(transform.up, windVelocity * WindRotateSense ).z * Time.deltaTime * 30f * LogicManager.PhysTimeRate;
+		Debug.Log("rotate Vel " + rotateVel );
 		rotateVel = Mathf.Clamp(rotateVel, maxRotVel, -maxRotVel);
 		rotateVel *= 0.98f;
 
@@ -185,7 +185,7 @@ public class WindTest : MonoBehaviour , WindSensable {
 
 		pos.z = Global.WIND_UI_Z;
 		transform.localPosition = pos;
-		model.transform.Rotate( rotateToward * rotateVel * Time.deltaTime * LogicManager.PhysTimeRate );
+		model.transform.Rotate( rotateToward * rotateVel * Time.deltaTime * 30f * LogicManager.PhysTimeRate );
 	}
 
 	void OnCollisionEnter(Collision col)

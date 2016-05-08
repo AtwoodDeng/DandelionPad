@@ -11,7 +11,6 @@ public class OnEventMove : OnEvent {
 
 	protected override void Do (Message msg)
 	{
-		
 		if ( isFrom )
 		{
 			transform.DOLocalMove( moveTo , time ).From().SetRelative(isRelative).SetEase(easeType).SetDelay(delay).OnComplete(Post);
@@ -19,7 +18,6 @@ public class OnEventMove : OnEvent {
 		else {
 			transform.DOLocalMove( moveTo , time ).SetRelative(isRelative).SetEase(easeType).SetDelay(delay).OnComplete(Post);
 		}
-
 	}
 
 	void Post()
