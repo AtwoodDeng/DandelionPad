@@ -1,0 +1,143 @@
+fileFormatVersion: 2
+guid: 3dbef47e2567d4b34a9c40fc07f1d148
+timeCreated: 1455591026
+licenseType: Pro
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: petal
+    21300002: stem0
+    21300004: stem1
+    21300006: leaf
+    21300008: stem2
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: petal
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 89
+        height: 190
+      alignment: 9
+      pivot: {x: 0.58011276, y: 0.06273458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -15.630035, y: 178.08043}
+        - {x: -51.630035, y: 166.08043}
+        - {x: -51.630035, y: 77.08043}
+        - {x: -13.630035, y: -11.919571}
+        - {x: 8.369965, y: -11.919571}
+        - {x: 18.369965, y: -7.919571}
+        - {x: 37.369965, y: 105.08043}
+        - {x: 37.369965, y: 178.08043}
+      - - {x: -32.630035, y: 12.080429}
+        - {x: -37.630035, y: 7.080429}
+        - {x: -37.630035, y: 2.080429}
+        - {x: -34.630035, y: -0.9195709}
+        - {x: -32.630035, y: -0.9195709}
+        - {x: -27.630035, y: 3.080429}
+        - {x: -27.630035, y: 11.080429}
+        - {x: -29.630035, y: 12.080429}
+    - name: stem0
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 86
+        width: 18
+        height: 104
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0022088564}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+    - name: stem1
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 35
+        width: 19
+        height: 155
+      alignment: 9
+      pivot: {x: 0.53263134, y: 0.00399736}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+    - name: leaf
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 15
+        width: 67
+        height: 175
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 21.5, y: 175}
+        - {x: -15.5, y: 175}
+        - {x: -26.5, y: 170}
+        - {x: -33.5, y: 156}
+        - {x: -33.5, y: 69}
+        - {x: -5.5, y: 0}
+        - {x: 8.5, y: 0}
+        - {x: 31.5, y: 41}
+        - {x: 33.5, y: 60}
+        - {x: 33.5, y: 162}
+    - name: stem2
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 34
+        width: 20
+        height: 156
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
