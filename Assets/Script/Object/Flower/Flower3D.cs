@@ -24,6 +24,9 @@ public class Flower3D : Flower , WindSensable {
 	BoxCollider m_Collider;
 
 	[SerializeField] protected Grow3DParameter grow3DPara;
+	[SerializeField] protected Perish3DParameter perish3DPara;
+
+	List<GameObject> leafList = new List<GameObject>();
 
 	[System.SerializableAttribute]
 	public struct Grow3DParameter
@@ -35,12 +38,23 @@ public class Flower3D : Flower , WindSensable {
 		public  MaxMin leafScaleRange;
 		public  MaxMin leafRotateAngleRange;
 		public  MaxMin leafPositionYRange;
-        public MaxMin leafNumberRange;
+        public  MaxMin leafNumberRange;
 
         public float stemWindSwind;
 
 		public int flowerPetalNumber;
 		public float flowerPetalUnlinkInterval;
+	};
+
+	[System.SerializableAttribute]
+	public struct Perish3DParameter
+	{
+		public MaxMin perishDelay;
+		public MaxMin perishTime;
+		public MaxMin leafRotateAngle;
+		public MaxMin leafPerishDelay;
+		public MaxMin leafPerishMoveY;
+		public MaxMin stemRotateAngle;
 	};
 
     // public override void Init() {
@@ -58,11 +72,22 @@ public class Flower3D : Flower , WindSensable {
 	void OnEnable()
 	{
 		EventManager.Instance.RegistersEvent(EventDefine.EndLevel, OnEndLevel);
+		EventManager.Instance.RegistersEvent(EventDefine.LevelDead, OnLevelDead);
 	}
 
 	void OnDisable()
 	{
 		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel, OnEndLevel);
+		EventManager.Instance.UnregistersEvent(EventDefine.LevelDead, OnLevelDead);
+	}
+
+	void OnLevelDead( Message msg )
+	{
+		Sequence seq = DOTween.Sequence();
+		seq.AppendCallback( PerishPre );
+		seq.AppendInterval( Random.Range( perish3DPara.perishDelay.min , perish3DPara.perishDelay.max ));
+		seq.AppendCallback( Perish);
+		
 	}
 
 	void OnEndLevel(Message msg )
@@ -217,6 +242,8 @@ public class Flower3D : Flower , WindSensable {
 				.SetDelay( (1 - scale / grow3DPara.leafScaleRange.max ) * growParameter.growTime / LogicManager.AnimTimeRate )
     		.From();
             sprite.DOFade(0, growTime / 2).SetDelay( (1 - scale / grow3DPara.leafScaleRange.max ) * growParameter.growTime ).From();
+
+			leafList.Add( leaf );
     	}
     }
 
@@ -344,6 +371,51 @@ public class Flower3D : Flower , WindSensable {
 			{
 				stemFollowWind.AddImpuse( velocity , petalRoot.position );
 			}
+		}
+	}
+
+
+	public void Perish()
+	{
+		float perishTime = Random.Range( perish3DPara.perishTime.min , perish3DPara.perishTime.max );
+
+		for( int i = 0 ; i < 1 ; ++ i )
+		{
+			stems[i].transform.DOScale( 0 , perishTime ).SetDelay( Random.Range( 0, 1f ));
+			if ( stems[i].GetComponent<FollowWind>() != null )
+				stems[i].GetComponent<FollowWind>().enabled = false;
+		}
+
+		for( int i = 0 ; i < leafList.Count ; ++ i )
+		{
+			leafList[i].transform.DOScale( 0 , perishTime ).SetDelay( Random.Range( 0, 1f ));
+			if ( leafList[i].GetComponent<FollowWind>() != null )
+				leafList[i].GetComponent<FollowWind>().enabled = false;
+			if ( leafList[i].GetComponent<SpriteRenderer>() != null )
+				leafList[i].GetComponent<SpriteRenderer>().DOFade( 0 , perishTime );
+		}
+
+
+	}
+
+	public void PerishPre()
+	{
+		float stemRotateAngle = Random.Range( perish3DPara.stemRotateAngle.min , perish3DPara.stemRotateAngle.max ) * ( ( Random.Range( -1f , 1f ) < 0) ? -1f : 1f );
+
+		float perishTime = Random.Range( perish3DPara.perishTime.min , perish3DPara.perishTime.max );
+
+		for( int i = 0 ; i < stems.Length ; ++ i )
+		{
+			stems[i].transform.DOLocalRotate( new Vector3( 0 , 0 , stemRotateAngle ) , perishTime ).SetRelative(true).SetDelay( Random.Range( 0,1f));
+		}
+
+		for( int i = 0 ; i < leafList.Count ; ++ i )
+		{
+			float leafRotateAngle = Random.Range( perish3DPara.leafRotateAngle.min , perish3DPara.leafRotateAngle.max ) * ( ( Random.Range( -1f , 1f ) < 0) ? -1f : 1f );	
+			leafList[i].transform.DOLocalRotate(new Vector3( 0 , 0 , leafRotateAngle ) , perishTime ).SetRelative(true).SetDelay( Random.Range( 0,1f));
+			leafList[i].transform.DOLocalMoveY( Random.Range( perish3DPara.leafPerishMoveY.min ,perish3DPara.leafPerishMoveY.max ) , perishTime )
+				.SetRelative(true)
+				.SetDelay( Random.Range( perish3DPara.leafPerishDelay.min ,perish3DPara.leafPerishDelay.max ));
 		}
 	}
 

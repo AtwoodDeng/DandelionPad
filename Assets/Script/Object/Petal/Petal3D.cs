@@ -29,6 +29,7 @@ public class Petal3D : Petal {
     [SerializeField] Material shareMaterial;
 
     [SerializeField] MaxMin flyAwayFadeTime;
+	[SerializeField] float normalFadeTime;
     float petalModelLinkInit;
     Vector3 petalModelRotateToward;
 
@@ -177,7 +178,10 @@ public class Petal3D : Petal {
         if ( blowType.Equals(BlowType.Normal) )
         {
 			SetColliderTrigger( false );
-
+			if ( !isFlowerPetal )
+			{
+				petalModel.transform.DOScale( 0 , 0.5f ).SetDelay(normalFadeTime).OnComplete(SelfDestory);
+			}
         }
         else if (blowType.Equals(BlowType.FlyAway))
         {
@@ -278,6 +282,7 @@ public class Petal3D : Petal {
  		   	m_rigidbody.velocity = Vector2.zero;
     }
 
+	bool isOutOfFrame = false;
     void UpdatePosition(float dt )
     {
 		float edt = dt * LogicManager.PhysTimeRate;
@@ -292,6 +297,16 @@ public class Petal3D : Petal {
 	        scaleVol += Vector3.Dot(petalModel.transform.up, Vector3.back) * scaleIntense;
 	        myScale += scaleVol;
 	        myScale = Mathf.Clamp(myScale, 1f/maxScale, maxScale);
+		}
+
+		// if out of the frame
+		if ( state == PetalState.Fly || state == PetalState.FlyAway )
+		if ( !CameraManager.Instance.ifInFrameWorld( transform.localPosition ) && !isOutOfFrame)
+		{
+			isOutOfFrame = true;
+			if ( !destoryMessage.ContainMessage( "OutOfFrame" ))
+				destoryMessage.AddMessage("OutOfFrame" , 1);
+			transform.DOScale( 0 , 1f ).OnComplete(SelfDestory);
 		}
     }
 
@@ -319,6 +334,7 @@ public class Petal3D : Petal {
 //        chaosFunction = StartCoroutine(GenerateChaos(Random.Range(.5f, .8f)));
 //    }
 
+
 	public override void OnLand (Vector3 point, Vector3 normal, GameObject obj)
 	{
 		if ( !isFlowerPetal )
@@ -326,8 +342,11 @@ public class Petal3D : Petal {
 	}
 
     protected override void SelfDestory () {
-        follow.windSensablParameter.shouldStore = false;
-        base.SelfDestory();
+		if ( state != PetalState.Dead)
+		{
+	        follow.windSensablParameter.shouldStore = false;
+	        base.SelfDestory();
+		}
 
         // if (chaosFunction != null)
         //     StopCoroutine(chaosFunction);

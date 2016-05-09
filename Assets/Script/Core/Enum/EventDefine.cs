@@ -50,4 +50,6 @@ public enum EventDefine
 	ZoomIn = 31,
 	ZoomOut = 32,
 
+	LevelDead = 40,
+
 }

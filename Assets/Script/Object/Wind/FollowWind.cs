@@ -177,9 +177,6 @@ public class FollowWind : MonoBehaviour , WindSensable {
         //Rotate the object
 		transform.Rotate(Vector3.back, angleVol * edt * 30f );
 
-
-        // yield return null;
-    // }    
     }
 
 	bool IsOutOfSwingRange(float vel)

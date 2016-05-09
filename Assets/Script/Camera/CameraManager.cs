@@ -41,6 +41,12 @@ public class CameraManager : MonoBehaviour {
 
 	[SerializeField] float focusTolerance = 5f;
 	[SerializeField] bool ifSendMoveMessage = false;
+	/// <summary>
+	/// frame tolerance of the world (works on petal3d check the frame of the level)
+	/// </summary>
+	[SerializeField] float FrameTolarance = -2f;
+
+	Vector3 frameSize;
 
 	public Vector3 OffsetFromInit{
 		get {
@@ -254,8 +260,23 @@ public class CameraManager : MonoBehaviour {
 	{
 		LogicManager.LevelManager.GetLevelObject().transform.position = - initPos;
 		RecordLevelPosition();
+		SetupFrameSize();
 	}
 
+
+	void SetupFrameSize ()
+	{
+		Vector3 accessTopRight = Camera.main.ScreenToWorldPoint( Vector3.zero );
+		Vector3 accessBotLeft = Camera.main.ScreenToWorldPoint( new Vector3( Screen.width , Screen.height ));
+		Vector3 accesableSize = accessBotLeft - accessTopRight;
+
+		accesableSize.x += frame.x ;
+		accesableSize.y += frame.y ;
+
+		frameSize = accesableSize;
+
+		Debug.Log("Frame Size " + frameSize);
+	}
 	void RecordLevelPosition()
 	{
 		levelPosStartFollow = LogicManager.LevelManager.GetLevelObject().transform.position;
@@ -401,7 +422,15 @@ public class CameraManager : MonoBehaviour {
 		return true;
 	}
 
-
+	public bool ifInFrameWorld( Vector3 pos )
+	{
+		float tolarent = FrameTolarance;
+		if ( pos.x < frameOffset.x - frameSize.x / 2 - tolarent) return false;
+		if ( pos.x > frameOffset.x + frameSize.x / 2 + tolarent) return false;
+		if ( pos.y < frameOffset.y - frameSize.y / 2 - tolarent) return false;
+		return true;
+	}
+		
 /// <summary>
 /// Creats the ink. Create the in by the position 
 /// </summary>
@@ -555,14 +584,15 @@ public class CameraManager : MonoBehaviour {
 	{
 		Gizmos.color = Color.red;
 
-
 		Vector3 accessTopRight = Camera.main.ScreenToWorldPoint( Vector3.zero );
 		Vector3 accessBotLeft = Camera.main.ScreenToWorldPoint( new Vector3( Screen.width , Screen.height ));
 		Vector3 accesableSize = accessBotLeft - accessTopRight;
 		accesableSize.x += frame.x ;
 		accesableSize.y += frame.y ;
 
-		Gizmos.DrawWireCube( transform.position + frameOffset , accesableSize );
+//		Gizmos.DrawWireCube( transform.position + frameOffset , accesableSize );
+
+		Gizmos.DrawWireCube( frameOffset , accesableSize );
 
 		Gizmos.color = new Color( 1f ,  0.5f , 0.5f );
 

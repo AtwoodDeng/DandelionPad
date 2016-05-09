@@ -16,24 +16,42 @@ public class LevelManager : MonoBehaviour {
 		return GameObject.Find("level");
 	}
 
-	void Start() {}
+	void Start() {
+		Init();
+	}
+
+	void Init()
+	{
+		if ( pointAreas == null || pointAreas.Count <= 0 )
+		{
+			GameObject[] areas = GameObject.FindGameObjectsWithTag("FinalPoint");
+			foreach( GameObject area in areas )
+			{
+				if ( area.GetComponent<PointArea>() != null )
+				{
+					pointAreas.Add( area.GetComponent<PointArea>());
+				}
+			}
+		}
+
+		if ( lands == null || lands.Count <= 0 )
+		{
+			GameObject[] lObjs = GameObject.FindGameObjectsWithTag("Land");
+			foreach( GameObject lObj in lObjs )
+			{
+				if ( lObj.GetComponent<Land>() != null )
+				{
+					lands.Add( lObj.GetComponent<Land>());
+				}
+			}
+		}
+	}
 
 	public bool CheckLevelFinished()
 	{
 		if ( endCondition == EndingCondition.PointArea )
 		{
-			if ( pointAreas == null || pointAreas.Count <= 0 )
-			{
-				GameObject[] areas = GameObject.FindGameObjectsWithTag("FinalPoint");
-				foreach( GameObject area in areas )
-				{
-					if ( area.GetComponent<PointArea>() != null )
-					{
-						pointAreas.Add( area.GetComponent<PointArea>());
-					}
-				}
-			}
-
+			if ( pointAreas == null ) Init();
 			foreach( PointArea pa in pointAreas )
 			{
 				if ( ! pa.isFinished )
@@ -42,18 +60,7 @@ public class LevelManager : MonoBehaviour {
 			return true;
 		} else if ( endCondition == EndingCondition.Land )
 		{
-			if ( lands == null || lands.Count <= 0 )
-			{
-				GameObject[] lObjs = GameObject.FindGameObjectsWithTag("Land");
-				foreach( GameObject lObj in lObjs )
-				{
-					if ( lObj.GetComponent<Land>() != null )
-					{
-						lands.Add( lObj.GetComponent<Land>());
-					}
-				}
-			}
-
+			if ( lands == null ) Init();
 			foreach( Land l in lands )
 			{
 				if ( !l.IsCompleted() )
@@ -68,20 +75,22 @@ public class LevelManager : MonoBehaviour {
 		return false;
 	}
 
-	public bool CheckLevelFinishWithoutLand( Land land )
+	public bool CheckLevelDead()
 	{
-		if ( lands == null || lands.Count <= 0 )
+		if ( lands == null ) Init();
+		foreach( Land l in lands )
 		{
-			GameObject[] lObjs = GameObject.FindGameObjectsWithTag("Land");
-			foreach( GameObject lObj in lObjs )
+			if ( !l.IsAllDie() )
 			{
-				if ( lObj.GetComponent<Land>() != null )
-				{
-					lands.Add( lObj.GetComponent<Land>());
-				}
+				return false;
 			}
 		}
+		return true;
+	}
 
+	public bool CheckLevelFinishWithoutLand( Land land )
+	{
+		if ( lands == null ) Init();
 		foreach( Land l in lands )
 		{
 			if ( !l.IsCompleted() && l != land )

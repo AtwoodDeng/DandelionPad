@@ -21,12 +21,19 @@ public class WindTestGenerator : MonoBehaviour {
 	{
 		EventManager.Instance.RegistersEvent(EventDefine.SwitchWind , OnSwithWind);
 		EventManager.Instance.RegistersEvent(EventDefine.LevelInitialized , OnLevelInitialized);
+		EventManager.Instance.RegistersEvent(EventDefine.EndLevel , OnEndLevel);
 	}
 
 	void OnDisable()
 	{
 		EventManager.Instance.UnregistersEvent(EventDefine.SwitchWind , OnSwithWind);
 		EventManager.Instance.UnregistersEvent(EventDefine.LevelInitialized , OnLevelInitialized);
+		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel , OnEndLevel);
+	}
+
+	void OnEndLevel( Message msg )
+	{
+		HideUI();
 	}
 
 	void OnSwithWind( Message msg )

@@ -110,11 +110,28 @@ public class LogicManager : MonoBehaviour {
 		get { return m_swipeTime; }
 	}
 
-	bool m_isEnded;
+	bool m_isBegin = false;
+	public bool isBegin
+	{
+		get { 
+			return m_isBegin;
+		}
+	}
+
+	bool m_isEnded = false;
 	public bool isEnded
 	{
 		get { 
 			return m_isEnded;
+		}
+	}
+
+
+	bool m_isDead = false;
+	public bool isDead
+	{
+		get { 
+			return m_isDead;
 		}
 	}
 
@@ -127,6 +144,8 @@ public class LogicManager : MonoBehaviour {
 		EventManager.Instance.RegistersEvent(EventDefine.AllBlackEndLevel,AllBlackEndLevel);
 		EventManager.Instance.RegistersEvent(EventDefine.AllBlackRetry,AllBlackRetry);
 		EventManager.Instance.RegistersEvent(EventDefine.BloomFlower,OnBloomFlower);
+		EventManager.Instance.RegistersEvent(EventDefine.GrowFirstFlower,OnGrowFirstFlower);
+		EventManager.Instance.RegistersEvent(EventDefine.EndLevel,OnEndLevel);
 
 	}
 
@@ -139,6 +158,8 @@ public class LogicManager : MonoBehaviour {
 		EventManager.Instance.UnregistersEvent(EventDefine.AllBlackEndLevel,AllBlackEndLevel);
 		EventManager.Instance.UnregistersEvent(EventDefine.AllBlackRetry,AllBlackRetry);
 		EventManager.Instance.UnregistersEvent(EventDefine.BloomFlower,OnBloomFlower);
+		EventManager.Instance.UnregistersEvent(EventDefine.GrowFirstFlower,OnGrowFirstFlower);
+		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel,OnEndLevel);
 	}
 
 	void Start()
@@ -164,6 +185,16 @@ public class LogicManager : MonoBehaviour {
 
 	}
 
+	void OnEndLevel( Message msg )
+	{
+		m_isEnded = true;
+	}
+
+	void OnGrowFirstFlower( Message msg )
+	{
+		m_isBegin = true;
+	}
+
 	void OnBloomFlower( Message msg)
 	{
 		if ( m_levelManager.CheckLevelFinished() )
@@ -171,6 +202,7 @@ public class LogicManager : MonoBehaviour {
 			m_isEnded = true;
 		}
 	}
+
 
 	void AllBlackEndLevel( Message msg )
 	{
@@ -188,12 +220,23 @@ public class LogicManager : MonoBehaviour {
 		{
 			EventManager.Instance.PostEvent( EventDefine.EndLevel );
 			checkEnd = true;
-			Debug.Log("End level");
+//			Debug.Log("End level");
+		}
+
+		if ( m_levelManager.CheckLevelDead() && !m_isDead && m_isBegin && !m_isEnded )
+		{
+			m_isDead = true;
+			EventManager.Instance.PostEvent(EventDefine.LevelDead);
 		}
 
 		if ( Input.GetKeyDown(KeyCode.E) && Input.GetKey(KeyCode.LeftControl))
 		{
 			EventManager.Instance.PostEvent(EventDefine.EndLevel);
+		}
+
+		if ( Input.GetKeyDown(KeyCode.D) && Input.GetKey(KeyCode.LeftControl))
+		{
+			EventManager.Instance.PostEvent(EventDefine.LevelDead);
 		}
 	}
 

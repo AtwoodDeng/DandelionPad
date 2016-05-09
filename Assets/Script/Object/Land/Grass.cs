@@ -10,7 +10,29 @@ public class Grass : MonoBehaviour {
 	[SerializeField] float AngleDiff;
 	[SerializeField] float growTime;
 	[SerializeField] float normalAffect = 0.33f;
+	[SerializeField] float perishTime = 5f;
+	[SerializeField] MaxMin perishAngle;
+	[SerializeField] MaxMin perishDelay;
 
+	void OnEnable()
+	{
+		EventManager.Instance.RegistersEvent(EventDefine.LevelDead, OnLevelDead);
+	}
+
+	void OnDisable()
+	{
+		EventManager.Instance.UnregistersEvent(EventDefine.LevelDead, OnLevelDead);
+	}
+
+	void OnLevelDead(Message msg )
+	{
+		Sequence seq = DOTween.Sequence();
+		seq.AppendCallback( PerishPre );
+		seq.AppendInterval( Random.Range( perishDelay.min , perishDelay.max ));
+		seq.AppendCallback( Perish );
+
+
+	}
 
 	public void Init( Vector3 normal )
 	{
@@ -61,4 +83,23 @@ public class Grass : MonoBehaviour {
 		yield break;
 	}
 
+	void PerishPre()
+	{
+		float angle = ( Random.Range( -1 , 1 ) < 0 ? -1f : 1f ) * Random.Range( perishAngle.min , perishAngle.max );
+		for( int i = 1 ; i < parts.Length ; ++ i )
+		{
+			parts[i].DOLocalRotate( new Vector3( 0 , 0 , angle ) , perishTime ).SetRelative(true).SetDelay( Random.Range( 0,1f));;
+		}
+	}
+
+	void Perish()
+	{
+		for( int i = 1 ; i < parts.Length ; ++ i )
+		{
+			parts[i].DOScale( 0 , perishTime ).SetDelay( 1f - i * 0.2f );
+		}
+
+		if ( GetComponent<FollowWind>() != null )
+			GetComponent<FollowWind>().enabled = false;
+	}
 }

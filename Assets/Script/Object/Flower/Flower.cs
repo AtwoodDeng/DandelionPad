@@ -114,7 +114,8 @@ public class Flower : MonoBehaviour {
 
 	virtual protected bool canBlow()
 	{
-		return LogicManager.Instance.RemainBlowTime > 0;
+//		return LogicManager.Instance.RemainBlowTime > 0;
+		return true;
 	}
 
 	public void Blow(Vector2 dir , float velocity)
@@ -172,12 +173,11 @@ public class Flower : MonoBehaviour {
 				}
 			}
 
-
 			EventManager.Instance.PostEvent( EventDefine.BlowFlower , msg );
 		}
 
-
 	}
+
 
 	public int GetPetalNumByType( PetalState compare )
 	{
@@ -188,6 +188,11 @@ public class Flower : MonoBehaviour {
 				count ++ ;
 		}
 		return count;
+	}
+
+	public bool isAllDead()
+	{
+		return GetPetalNumByType( PetalState.Dead ) >= petalNum;
 	}
 
 }

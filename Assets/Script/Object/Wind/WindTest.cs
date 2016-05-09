@@ -147,7 +147,6 @@ public class WindTest : MonoBehaviour , WindSensable {
 		velocity *= 0.98f;
 
 		rotateVel += Vector3.Cross(transform.up, windVelocity * WindRotateSense ).z * Time.deltaTime * 30f * LogicManager.PhysTimeRate;
-		Debug.Log("rotate Vel " + rotateVel );
 		rotateVel = Mathf.Clamp(rotateVel, maxRotVel, -maxRotVel);
 		rotateVel *= 0.98f;
 

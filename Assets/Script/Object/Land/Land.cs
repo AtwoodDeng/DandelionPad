@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Land : MonoBehaviour {
 	[SerializeField] float PosLayer = 0 ;
@@ -82,6 +83,8 @@ public class Land : MonoBehaviour {
 	public static int CoverRecordNum = 10;
 	Vector4[] CoverRec = new Vector4[CoverRecordNum];
 
+	List<Flower> flowers = new List<Flower>();
+
 	public struct CoverInfo
 	{
 		public Vector4 to;
@@ -121,6 +124,7 @@ public class Land : MonoBehaviour {
 		}
 	}
 
+
 	void OnGrowFlowerOn(Message msg )
 	{
 		PetalInfo info = (PetalInfo)msg.GetMessage( "info" );
@@ -130,6 +134,12 @@ public class Land : MonoBehaviour {
 			{
 				GrowGrass(info);
 			}
+		}
+
+		Flower flower = (Flower)msg.GetMessage("flower");
+		if ( flower != null )
+		{
+			flowers.Add( flower );
 		}
 	}
 
@@ -389,6 +399,17 @@ public class Land : MonoBehaviour {
 	public bool IsCompleted()
 	{
 		return ( isGrowedGrass  ) || isBack;
+	}
+
+	public bool IsAllDie()
+	{
+		for( int i = 0 ;i < flowers.Count ; ++ i )
+		{
+			if ( !flowers[i].isAllDead() ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 

@@ -94,10 +94,10 @@ public class Petal : MonoBehaviour  {
 		flowerCom.growParameter.petalType = myGrowInfo.type;
 		flowerCom.Init();
 
-		SendGrowMessage(position,land.transform);
+		SendGrowMessage(position,land.transform , flowerCom);
 	}
 
-	virtual protected void SendGrowMessage(Vector3 position,Transform parent)
+	virtual protected void SendGrowMessage(Vector3 position,Transform parent , Flower flower)
 	{
 		Message growMsg = new Message();
 		myGrowInfo.position = position;
@@ -105,6 +105,7 @@ public class Petal : MonoBehaviour  {
 		if ( state == PetalState.Init)
 			myGrowInfo.type = PetalType.Init;
 		growMsg.AddMessage("info", myGrowInfo);
+		growMsg.AddMessage("flower" , flower );
 		EventManager.Instance.PostEvent(EventDefine.GrowFlowerOn, growMsg,this);
 	}
 
@@ -159,7 +160,7 @@ public class Petal : MonoBehaviour  {
 		OnLand( coll.contacts[0].point , coll.contacts[0].normal , coll.collider.gameObject );
 	}
 
-	Message destoryMessage = new Message();
+	protected Message destoryMessage = new Message();
 
 	virtual public void OnLand(Vector3 point , Vector3 normal , GameObject obj)
 	{
@@ -197,6 +198,7 @@ public class Petal : MonoBehaviour  {
 			if ( Physics.Raycast( point , Vector3.down , out hitInfo, 2f , layerMask ) )
 			{
 				growPoint = Global.V2ToV3( hitInfo.point ) + Vector3.down * hitInfo.distance * 2;
+				_normal = hitInfo.normal;
 			}
 
 			destoryMessage.AddMessage("OnLand" , 1);
@@ -253,16 +255,20 @@ public class Petal : MonoBehaviour  {
 	{
 		if ( land != null && !land.IfCanGrowFlower() )
 			return false;
+		Debug.Log("Check 1");
 		
-		if ( Vector3.Dot( Vector3.up , normal.normalized ) < 0.3f )
+		if ( Vector3.Dot( Vector3.up , normal.normalized ) < 0.1f )
 			return false;
-		
+
+		Debug.Log("Check 2");
 		if (flowerGrowInfoList.Count >= growLimit)
 			return false;
+		
+		Debug.Log("Check 3");
 			
-		foreach( PetalInfo info in  flowerGrowInfoList)
+		foreach( PetalInfo info in flowerGrowInfoList)
 		{
-			if ( (info.position-position).magnitude < minGrowDistance )
+			if ( (info.position - position).magnitude < minGrowDistance )
 			{
 				return false;
 			}
@@ -290,13 +296,18 @@ public class Petal : MonoBehaviour  {
 
 	virtual protected void SelfDestory()
 	{
-		transform.position = new Vector3(999999f,999999f,999999f);
-		gameObject.SetActive(false);
+		if ( state != PetalState.Dead )
+		{
+			transform.position = new Vector3(999999f,999999f,999999f);
+			gameObject.SetActive(false);
 
 
-		destoryMessage.AddMessage("petal" , this );
-		EventManager.Instance.PostEvent(EventDefine.PetalDestory , destoryMessage );
-		// Destroy(this.gameObject);
+			destoryMessage.AddMessage("petal" , this );
+			EventManager.Instance.PostEvent(EventDefine.PetalDestory , destoryMessage );
+			// Destroy(this.gameObject);
+
+			state = PetalState.Dead;
+		}
 
 	}
 

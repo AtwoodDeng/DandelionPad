@@ -2,17 +2,16 @@
 using System.Collections;
 using UnityEngine.UI;
 
+using DG.Tweening;
+
 public class FunctionWindows : MonoBehaviour {
 
 	[SerializeField] Text NumberText;
 	[SerializeField] AudioSource clickSound;
 //	[SerializeField] Button windButton;
 	[SerializeField] Button zoomButton;
+	[SerializeField] Button retryButton;
 
-	void Update()
-	{
-		NumberText.text = LogicManager.Instance.RemainBlowTime.ToString();
-	}
 
 	float zoomButtonTime;
 //	public void OnWindButton()
@@ -31,6 +30,23 @@ public class FunctionWindows : MonoBehaviour {
 //		StartCoroutine(ActiveButton(windViewInterval, windButton));
 //	}
 
+	void OnEnable()
+	{
+		EventManager.Instance.RegistersEvent(EventDefine.LevelDead,OnLevelDead);
+	}
+
+	void Disable()
+	{
+		EventManager.Instance.UnregistersEvent(EventDefine.LevelDead,OnLevelDead);
+	}
+
+	void OnLevelDead( Message msg )
+	{
+		Sequence seq = DOTween.Sequence();
+		seq.Append( retryButton.transform.DORotate(new Vector3(0,0,360f),2f).SetRelative(true).SetEase(Ease.InOutCubic));
+		seq.AppendInterval( 0.4f );
+		seq.SetLoops( 9999 , LoopType.Incremental );
+	}
 
 	IEnumerator ActiveButton(float delay , Button button)
 	{

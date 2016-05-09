@@ -93,7 +93,7 @@ public class EventManager : MonoBehaviour
 
 	public void PostEvent(EventDefine eventName , Message msg = null , object sender=null)
 	{
-		Debug.Log("Post " + eventName );
+//		Debug.Log("Post " + eventName );
 		if (msg == null )
 			postEventList.Add(new EventInvocation(eventName , new Message(), sender));
 		else

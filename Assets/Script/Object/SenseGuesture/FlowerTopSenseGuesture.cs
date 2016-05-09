@@ -55,6 +55,7 @@ public class FlowerTopSenseGuesture : SenseGuesture {
 	{
 		if ( e.Phase == FingerHoverPhase.Exit && CheckIfFlowerEvent(e.Finger.Index) )
 		{
+			Debug.Log("Top Blow Hover");
 			Vector2 velocity = e.Finger.DeltaPosition / Time.deltaTime; 
 			flower.Blow( velocity * Global.Pixel2Unit );
 		}
@@ -65,6 +66,7 @@ public class FlowerTopSenseGuesture : SenseGuesture {
 	{
 		if ( e.Phase == FingerMotionPhase.Updated  && CheckIfFlowerEvent(e.Finger.Index))
 		{
+			Debug.Log("Top Blow Motion");
 			Vector2 velocity = e.Finger.DeltaPosition / Time.deltaTime; 
 			flower.Blow( velocity * Global.Pixel2Unit );
 		}
