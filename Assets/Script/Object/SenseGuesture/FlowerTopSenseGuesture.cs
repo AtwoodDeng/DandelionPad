@@ -51,16 +51,16 @@ public class FlowerTopSenseGuesture : SenseGuesture {
 
 
 
-	public override void DealOnFingerHover (FingerHoverEvent e)
-	{
-		if ( e.Phase == FingerHoverPhase.Exit && CheckIfFlowerEvent(e.Finger.Index) )
-		{
-			Debug.Log("Top Blow Hover");
-			Vector2 velocity = e.Finger.DeltaPosition / Time.deltaTime; 
-			flower.Blow( velocity * Global.Pixel2Unit );
-		}
-		UpdateColliderPosition();
-	}
+//	public override void DealOnFingerHover (FingerHoverEvent e)
+//	{
+//		if ( e.Phase == FingerHoverPhase.Exit && CheckIfFlowerEvent(e.Finger.Index) )
+//		{
+//			Debug.Log("Top Blow Hover");
+//			Vector2 velocity = e.Finger.DeltaPosition / Time.deltaTime; 
+//			flower.Blow( velocity * Global.Pixel2Unit );
+//		}
+//		UpdateColliderPosition();
+//	}
 
 	public override void DealOnFingerMotion (FingerMotionEvent e)
 	{

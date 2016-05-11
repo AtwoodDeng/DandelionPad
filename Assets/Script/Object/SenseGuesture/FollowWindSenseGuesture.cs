@@ -53,7 +53,7 @@ public class FollowWindSenseGuesture : SenseGuesture {
 			break;
 		default :
 			check = index == 0;
-			Debug.Log("Check index " + index );
+//			Debug.Log("Check index " + index );
 			break;
 		}
 		return check;

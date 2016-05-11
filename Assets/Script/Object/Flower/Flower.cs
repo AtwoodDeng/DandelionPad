@@ -129,6 +129,8 @@ public class Flower : MonoBehaviour {
 		{
 			Message msg = new Message();
 			msg.AddMessage("Flower" , this );
+			msg.AddMessage("Velocity" , velocity );
+
 
 			if ( useChance )
 			{
@@ -156,19 +158,24 @@ public class Flower : MonoBehaviour {
 					{
 						petals[i].Blow( (velocity.normalized + Random.Range(0,0.4f) * Global.GetRandomDirection()) * velocity.magnitude , Petal.BlowType.Normal );
 						petals[i].transform.parent = LogicManager.Level.transform;
-				
 						msg.AddMessage("petal" + blow.ToString() , petals[i] );
 						blow ++;
 					}
 				}
-				Debug.Log("Blow " + blow );
+//				Debug.Log("Blow " + blow );
 
-				for ( int i = blowNumber ; i < petals.Count ; ++ i )
+				int linkPetal = GetPetalNumByType(PetalState.Link);
+
+				int flyAwayNumber = (int)(linkPetal * flyAwayChance) + 1 ;
+				int flyAway = 0;
+
+				for ( int i = blowNumber ; flyAway < flyAwayNumber && i < petals.Count ; ++ i )
 				{
-					if ( petals[i].state == PetalState.Link && Random.Range(0, 1f) < blowChance )
+					if ( petals[i].state == PetalState.Link )
 					{
 						petals[i].Blow( (velocity.normalized + 0.6f * Global.GetRandomDirection()) * velocity.magnitude , Petal.BlowType.FlyAway );
 						petals[i].transform.parent = LogicManager.Level.transform;
+						flyAway ++;
 					}
 				}
 			}

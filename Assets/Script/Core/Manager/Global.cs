@@ -138,6 +138,8 @@ public enum PetalState
 	FlyAway,
 	Init,
 	Dead,
+	LandGrow,
+	LandDead,
 }
 [System.SerializableAttribute]
 public struct WindSensablParameter

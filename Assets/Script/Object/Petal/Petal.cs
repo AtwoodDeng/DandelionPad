@@ -9,7 +9,7 @@ public class Petal : MonoBehaviour  {
 	
 	[SerializeField] protected GameObject flowerPrefab;
 	[SerializeField] float minGrowDistance = 0.3f;
-	[SerializeField] int growLimit;
+//	[SerializeField] int growLimit;
 	[SerializeField] public Transform top;
 	[SerializeField] public float selfDestoryTime = 2f;
 
@@ -34,21 +34,21 @@ public class Petal : MonoBehaviour  {
 
 	void OnEnable()
 	{
-		EventManager.Instance.RegistersEvent(EventDefine.GrowFlowerOn, OnOthersGrowFlower);
+//		EventManager.Instance.RegistersEvent(EventDefine.GrowFlowerOn, OnOthersGrowFlower);
 	}
 
 	void OnDisable()
 	{
-		EventManager.Instance.UnregistersEvent(EventDefine.GrowFlowerOn, OnOthersGrowFlower);
+//		EventManager.Instance.UnregistersEvent(EventDefine.GrowFlowerOn, OnOthersGrowFlower);
 	}
 
 
-	List<PetalInfo> flowerGrowInfoList = new List<PetalInfo>();
-	void OnOthersGrowFlower(Message msg)
-	{	
-		PetalInfo info = (PetalInfo) msg.GetMessage("info");
-		flowerGrowInfoList.Add(info);
-	}
+//	List<PetalInfo> flowerGrowInfoList = new List<PetalInfo>();
+//	void OnOthersGrowFlower(Message msg)
+//	{	
+//		PetalInfo info = (PetalInfo) msg.GetMessage("info");
+//		flowerGrowInfoList.Add(info);
+//	}
 
 	void Awake()
 	{
@@ -183,7 +183,7 @@ public class Petal : MonoBehaviour  {
 			//Change the State of the petal
 			if ( state == PetalState.Init )
 				EventManager.Instance.PostEvent( EventDefine.GrowFirstFlower );
-			state = PetalState.Land;
+//			state = PetalState.Land;
 
 
 			//Grow a new flower on the collision point
@@ -206,10 +206,12 @@ public class Petal : MonoBehaviour  {
 			if (checkCanGrowFlower(growPoint , _normal , land)) 
 			{
 				GrowFlowerOn(growPoint, _normal , land );
+				state = PetalState.LandGrow;
 
 			} else
 			{
 				destoryMessage.AddMessage("FailToGrow" , 1);
+				state = PetalState.LandDead;
 			}
 
 			transform.DOScale( 0 , selfDestoryTime ).OnComplete(SelfDestory);
@@ -256,23 +258,35 @@ public class Petal : MonoBehaviour  {
 		if ( land != null && !land.IfCanGrowFlower() )
 			return false;
 		Debug.Log("Check 1");
-		
-		if ( Vector3.Dot( Vector3.up , normal.normalized ) < 0.1f )
+
+		Debug.DrawRay( position , normal );
+		if ( Vector3.Dot( Vector3.up , normal.normalized ) < 0.3f )
 			return false;
 
 		Debug.Log("Check 2");
-		if (flowerGrowInfoList.Count >= growLimit)
-			return false;
-		
-		Debug.Log("Check 3");
-			
-		foreach( PetalInfo info in flowerGrowInfoList)
+
+		foreach( Flower f in land.flowers )
 		{
-			if ( (info.position - position).magnitude < minGrowDistance )
-			{
+			if ( (f.transform.position - position).magnitude < minGrowDistance )
 				return false;
-			}
 		}
+		Debug.Log("Check 3");
+
+//		if (flowerGrowInfoList.Count >= growLimit)
+//			return false;
+//		
+//		Debug.Log("Check 3");
+//			
+//		foreach( PetalInfo info in flowerGrowInfoList)
+//		{
+//			if ( (info.position - position).magnitude < minGrowDistance )
+//			{
+//				return false;
+//			}
+//		}
+//
+//		Debug.Log("Check 4");
+
 		return true;
 	}
 

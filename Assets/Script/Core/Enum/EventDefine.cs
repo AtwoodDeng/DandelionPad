@@ -31,7 +31,6 @@ public enum EventDefine
 
 	GrowFirstFlower = 14,
 
-
 	PetalDestory = 17,
 
 	UnableToMove = 18,

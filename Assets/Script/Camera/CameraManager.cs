@@ -38,6 +38,7 @@ public class CameraManager : MonoBehaviour {
 	[SerializeField] float normalOtherSize = 7f;
 	[SerializeField] float focusOtherSize = 4f;
 	[SerializeField] float ZoomOutOtherSize = 10f;
+	[SerializeField] float PinchSense = -0.02f;
 
 	[SerializeField] float focusTolerance = 5f;
 	[SerializeField] bool ifSendMoveMessage = false;
@@ -187,9 +188,10 @@ public class CameraManager : MonoBehaviour {
 	void CameraStopFollow()
 	{
 		if ( !m_enable ) return;
-		Debug.Log("Stop Follow Camera");
 		if ( m_state == CameraState.FollowTrans && StopFollowTime == Mathf.Infinity )
 		{
+			Debug.Log("Stop Follow Camera");
+
 			Sequence seq = DOTween.Sequence();
 
 			AllCameraDoOrthoSize( normalOtherSize , CameraFollowFadeTime , 0 , Ease.OutCubic );
@@ -340,14 +342,14 @@ public class CameraManager : MonoBehaviour {
 			Vector3 toPos = lvlTrans.position;
 			float toOrthoSize = GetCameraOrthoSize();
 
-			float rate = 0.1f;
+			float rate = 0.02f;
 			float orthSizeRate = 0.005f;
 			// if the follow not equal to null
 			// then the camera should follow the object
 			if ( isFollowAvailable() ){
 				toPos = GetFollow();
 				// update the orth size
-				toOrthoSize = GetFollowMaxDistance() * 0.8f;
+				toOrthoSize = GetFollowMaxDistance() * 0.6f + focusOtherSize;
 
 				if ( timeFromStart > 0 ) {
 					rate = Mathf.Clamp01( timeFromStart / CameraFollowFadeTime );
@@ -355,7 +357,6 @@ public class CameraManager : MonoBehaviour {
 						StartFollowTime = Mathf.Infinity;
 				}
 
-//				AllCameraSetOrthoSize( Mathf.Lerp( GetCameraOrthoSize() , GetFollowMaxDistance() * 0.8f , 0.005f) );
 			}
 			// if the follow equal to null
 			// then the camera should go back to its initial position;
@@ -369,7 +370,6 @@ public class CameraManager : MonoBehaviour {
 			}
 
 			Vector3 pos = lvlTrans.position;
-			
 			pos = Vector3.Lerp( pos , toPos , rate );
 			lvlTrans.position = pos;
 
@@ -382,15 +382,29 @@ public class CameraManager : MonoBehaviour {
 	{
 		int count = 0;
 		Vector3 to = Vector3.one;
+
+		foreach( Petal p in blowPetals )
+		{
+			if ( p.isActiveAndEnabled && p.state == PetalState.LandGrow )
+			{
+				to = Vector3.Lerp( - ( p.transform.position - LogicManager.Level.transform.position) , to , 1f * count / ( count + 1 ));
+				count ++;
+
+			}
+		}
+
+		if ( count > 0 )
+			return to;
+
 		foreach( Petal p in blowPetals )
 		{
 			if ( p.isActiveAndEnabled && p.state == PetalState.Fly )
 			{
-				to = Vector3.Lerp( - p.transform.localPosition , to , 1f * count / ( count + 1 ));
+				to = Vector3.Lerp( - ( p.transform.position - LogicManager.Level.transform.position) , to , 1f * count / ( count + 1 ));
 				count ++;
 			}
 		}
-//		(follow.gameObject.transform.position - lvlTrans.position );
+
 		return to;
 	}
 
@@ -400,6 +414,23 @@ public class CameraManager : MonoBehaviour {
 		float right = -Mathf.Infinity;
 		float buttom = Mathf.Infinity;
 		float top = -Mathf.Infinity;
+		bool isReturn = false;
+		foreach( Petal p in blowPetals )
+		{
+			if ( p.isActiveAndEnabled && p.state == PetalState.LandGrow )
+			{
+				if ( left > p.transform.localPosition.x ) left = p.transform.localPosition.x;
+				if ( right < p.transform.localPosition.x ) right = p.transform.localPosition.x;
+				if ( buttom > p.transform.localPosition.y ) buttom = p.transform.localPosition.y;
+				if ( top > p.transform.localPosition.y ) top = p.transform.localPosition.y;
+				isReturn = true;
+			}
+		}
+
+//		float size = Mathf.Max( right - left  , top - buttom );
+		if ( isReturn )
+			return Mathf.Max( right - left  , top - buttom );
+
 		foreach( Petal p in blowPetals )
 		{
 			if ( p.isActiveAndEnabled && p.state == PetalState.Fly )
@@ -408,19 +439,19 @@ public class CameraManager : MonoBehaviour {
 				if ( right < p.transform.localPosition.x ) right = p.transform.localPosition.x;
 				if ( buttom > p.transform.localPosition.y ) buttom = p.transform.localPosition.y;
 				if ( top > p.transform.localPosition.y ) top = p.transform.localPosition.y;
-
+				isReturn = true;
 			}
 		}
 
-		float size = Mathf.Max( right - left  , top - buttom );
-		return size;
+		return Mathf.Max( right - left  , top - buttom );
+
 	}
 
 	bool isFollowAvailable()
 	{
 		foreach( Petal p in blowPetals )
 		{
-			if ( p.isActiveAndEnabled && p.state == PetalState.Fly )
+			if ( p.isActiveAndEnabled && ( p.state == PetalState.Fly || p.state == PetalState.LandGrow) )
 				return true;
 		}
 		return false;
@@ -536,6 +567,7 @@ public class CameraManager : MonoBehaviour {
 			inkDict.Add( finger.Index , inkCom );
 	}
 
+
 	void OnFingerUpBack( FingerUpEvent e )
 	{
 		if ( !m_enable ) return;
@@ -642,29 +674,14 @@ public class CameraManager : MonoBehaviour {
 		}
 	}
 
-	float pinchStartGap = 0;
 	void OnPinchBack(  PinchGesture guesture )
 	{
 		if ( !m_enable ) return;
-//		if ( guesture.Phase == ContinuousGesturePhase.Started )
-//		{
-//			pinchStartGap = guesture.Gap;
-//		}
-//		if ( guesture.Phase == ContinuousGesturePhase.Ended )
-//		{
-//			if ( guesture.Gap > pinchStartGap )
-//			{
-//				ZoomOut();
-//			}
-//			else
-//			{
-//				ZoomIn();
-//			}
-//		}
+
 		if ( guesture.Phase == ContinuousGesturePhase.Updated )
 		{
 			float orthSize = GetCameraOrthoSize();
-			orthSize += guesture.Delta * 0.05f;
+			orthSize += guesture.Delta * PinchSense;
 			orthSize = Mathf.Clamp( orthSize , focusOtherSize , ZoomOutOtherSize );
 			AllCameraSetOrthoSize( orthSize );
 			if (  isZoomOutTutorial ) 

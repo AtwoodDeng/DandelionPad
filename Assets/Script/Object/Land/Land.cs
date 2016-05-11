@@ -83,7 +83,7 @@ public class Land : MonoBehaviour {
 	public static int CoverRecordNum = 10;
 	Vector4[] CoverRec = new Vector4[CoverRecordNum];
 
-	List<Flower> flowers = new List<Flower>();
+	public List<Flower> flowers = new List<Flower>();
 
 	public struct CoverInfo
 	{
@@ -112,7 +112,7 @@ public class Land : MonoBehaviour {
 
 	void OnBloomFlower( Message msg )
 	{
-		Debug.Log("Bloom Flower");
+//		Debug.Log("Bloom Flower");
 		Flower flower = (Flower) msg.sender;
 		if ( flower != null )
 		{
