@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using DG.Tweening;
 
 
 public class LogicManager : MonoBehaviour {
@@ -104,6 +105,14 @@ public class LogicManager : MonoBehaviour {
 		}
 	}
 
+	static bool m_isSetting = false;
+	static public bool isSetting
+	{
+		get { 
+			return m_isSetting;
+		}
+	}
+
 	int m_swipeTime = 3;
 	public int RemainBlowTime
 	{
@@ -135,6 +144,8 @@ public class LogicManager : MonoBehaviour {
 		}
 	}
 
+
+
 	void OnEnable()
 	{
 		EventManager.Instance.RegistersEvent(EventDefine.RenewSwipeTime,RenewSwipeTime);
@@ -146,6 +157,7 @@ public class LogicManager : MonoBehaviour {
 		EventManager.Instance.RegistersEvent(EventDefine.BloomFlower,OnBloomFlower);
 		EventManager.Instance.RegistersEvent(EventDefine.GrowFirstFlower,OnGrowFirstFlower);
 		EventManager.Instance.RegistersEvent(EventDefine.EndLevel,OnEndLevel);
+		EventManager.Instance.RegistersEvent(EventDefine.SwitchSetting,OnSwitchSetting);
 
 	}
 
@@ -160,6 +172,7 @@ public class LogicManager : MonoBehaviour {
 		EventManager.Instance.UnregistersEvent(EventDefine.BloomFlower,OnBloomFlower);
 		EventManager.Instance.UnregistersEvent(EventDefine.GrowFirstFlower,OnGrowFirstFlower);
 		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel,OnEndLevel);
+		EventManager.Instance.UnregistersEvent(EventDefine.SwitchSetting,OnSwitchSetting);
 	}
 
 	void Start()
@@ -185,6 +198,18 @@ public class LogicManager : MonoBehaviour {
 
 	}
 
+	void OnSwitchSetting( Message msg )
+	{
+		m_isSetting = (bool)msg.GetMessage("isSetting");
+		IPhysTimeRate = isSetting? 0 : 1;
+
+		if ( isSetting ) 
+			DOTween.PauseAll();
+		else
+			DOTween.PlayAll();
+
+	}
+
 	void OnEndLevel( Message msg )
 	{
 		m_isEnded = true;
@@ -206,6 +231,7 @@ public class LogicManager : MonoBehaviour {
 
 	void AllBlackEndLevel( Message msg )
 	{
+		DOTween.KillAll();
 		Application.LoadLevel( Global.NextLevel());
 	}
 

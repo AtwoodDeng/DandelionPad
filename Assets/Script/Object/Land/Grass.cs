@@ -55,6 +55,8 @@ public class Grass : MonoBehaviour {
 		for(int i = 0 ; i < parts.Length ; i++)
 		{
 			Transform s = parts[i];
+			if ( s == null )
+				continue;
 
 			// set the scale(start from V3(1,0,1))
 			Vector3 scale = s.localScale;

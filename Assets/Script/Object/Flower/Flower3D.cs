@@ -175,7 +175,7 @@ public class Flower3D : Flower , WindSensable {
 				Material m = new Material( sprite.material.shader );
 				Color fromColor = Color.Lerp( Color.black , Color.white , 1.0f * i / stems.Length );
 				Color toColor = Color.Lerp( Color.black , Color.white , 1.0f * ( i + 1 ) / stems.Length );
-				Debug.Log("From " + fromColor + " to " + toColor );
+//				Debug.Log("From " + fromColor + " to " + toColor );
 				m.SetColor("_ColorFirst" , fromColor );
 				m.SetColor("_ColorSecond" , toColor );
 				m.SetFloat("_ChangeRate" , 0.5f );

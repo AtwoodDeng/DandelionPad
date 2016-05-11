@@ -1,17 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 using DG.Tweening;
 
 public class FunctionWindows : MonoBehaviour {
-
-	[SerializeField] Text NumberText;
+	
 	[SerializeField] AudioSource clickSound;
 //	[SerializeField] Button windButton;
 	[SerializeField] Button zoomButton;
 	[SerializeField] Button retryButton;
 
+	[SerializeField] GameObject setting;
+	[SerializeField] Slider musicVolumeSlider;
 
 	float zoomButtonTime;
 //	public void OnWindButton()
@@ -84,5 +86,49 @@ public class FunctionWindows : MonoBehaviour {
 		EventManager.Instance.PostEvent(EventDefine.EndLevel);
 		if ( clickSound != null )
 			clickSound.Play();
+	}
+
+	void Start()
+	{
+		setting.SetActive(false);
+	}
+
+	bool isSetting = false;
+	public void OnGearButton()
+	{
+		if ( clickSound != null )
+			clickSound.Play();
+
+		isSetting = !isSetting;
+
+		// background image
+		// backCover.DOFade( isSetting? 0.5f : 0 , settingFadeTime );
+
+		musicVolumeSlider.value = AudioListener.volume;
+
+
+		Message msg = new Message();
+		msg.AddMessage( "isSetting" , isSetting );
+		EventManager.Instance.PostEvent( EventDefine.SwitchSetting , msg , this );
+
+		if ( isSetting )
+		{
+			setting.SetActive(true);
+		}else
+		{
+			setting.SetActive(false);
+		}
+
+	}
+
+	public void OnMusicVolumeChange( float vol )
+	{
+		if ( isSetting )
+			AudioListener.volume = musicVolumeSlider.value;
+	}
+
+	public void OnMenu()
+	{
+		SceneManager.LoadScene( "begin" );
 	}
 }

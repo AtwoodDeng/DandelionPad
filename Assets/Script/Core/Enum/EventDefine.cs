@@ -52,4 +52,6 @@ public enum EventDefine
 
 	LevelDead = 40,
 
+	SwitchSetting = 50,
+
 }

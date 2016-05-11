@@ -46,7 +46,11 @@ public class CameraManager : MonoBehaviour {
 	/// </summary>
 	[SerializeField] float FrameTolarance = -2f;
 
+	[SerializeField] bool isZoomOutTutorial = false;
+
 	Vector3 frameSize;
+
+	bool m_enable = true;
 
 	public Vector3 OffsetFromInit{
 		get {
@@ -68,6 +72,7 @@ public class CameraManager : MonoBehaviour {
 		EventManager.Instance.RegistersEvent(EventDefine.PetalDestory , OnPetalDestory);
 		EventManager.Instance.RegistersEvent(EventDefine.BloomFlower , OnBloomFlower);
 		EventManager.Instance.RegistersEvent(EventDefine.SwitchZoom , OnSwitchZoom);
+		EventManager.Instance.RegistersEvent(EventDefine.SwitchSetting , OnSwitchSetting );
 	}
 
 	void OnDisable()
@@ -78,11 +83,19 @@ public class CameraManager : MonoBehaviour {
 		EventManager.Instance.UnregistersEvent(EventDefine.PetalDestory , OnPetalDestory);
 		EventManager.Instance.UnregistersEvent(EventDefine.BloomFlower , OnBloomFlower);
 		EventManager.Instance.UnregistersEvent(EventDefine.SwitchZoom , OnSwitchZoom);
+		EventManager.Instance.UnregistersEvent(EventDefine.SwitchSetting , OnSwitchSetting );
+	}
+
+	void OnSwitchSetting( Message msg )
+	{
+		bool isSetting = (bool)msg.GetMessage("isSetting");
+		m_enable = !isSetting;
 	}
 
 	List<Petal> blowPetals = new List<Petal>();
 	void OnBlow(Message msg )
 	{
+		if ( !m_enable ) return;
 		int i = 0 ;
 
 		List<Petal> newPetal = new List<Petal>();
@@ -103,6 +116,7 @@ public class CameraManager : MonoBehaviour {
 
 	void OnBloomFlower( Message msg )
 	{
+		if ( !m_enable ) return;
 		Petal p = msg.sender as Petal;
 
 	
@@ -140,7 +154,6 @@ public class CameraManager : MonoBehaviour {
 				}
 			}
 		}
-
 	}
 
 
@@ -149,25 +162,17 @@ public class CameraManager : MonoBehaviour {
 		ZoomSwitch();
 	}
 
-	[SerializeField] Transform follow;
 	[SerializeField] Vector3 levelPosStartFollow;
+	[SerializeField] float OthrSizeStartFollow;
 	void CameraStartFollow(Transform trans )
 	{
+		if ( !m_enable ) return;
 		if ( ( m_state == CameraState.Free || m_state == CameraState.Disable ) && StartFollowTime == Mathf.Infinity )
 		{
 			Debug.Log("Follow " + trans.name );
 			RecordLevelPosition();
 			StartFollowTime = Time.time;
 			m_state = CameraState.FollowTrans;
-			follow = trans;
-
-//			Camera[] childCameras = GetComponentsInChildren<Camera>();
-//			foreach( Camera c in childCameras )
-//			{
-//				c.DOOrthoSize( focusOtherSize , CameraFollowFadeTime ).SetEase(Ease.InCubic);
-//			}
-
-			AllCameraDoOrthoSize( focusOtherSize , CameraFollowFadeTime , 0 , Ease.InCubic );
 
 			VignetteAndChromaticAberration effect = GetComponentInChildren<VignetteAndChromaticAberration>();
 			if ( effect != null )
@@ -181,16 +186,12 @@ public class CameraManager : MonoBehaviour {
 	float StopFollowTime = Mathf.Infinity;
 	void CameraStopFollow()
 	{
+		if ( !m_enable ) return;
 		Debug.Log("Stop Follow Camera");
 		if ( m_state == CameraState.FollowTrans && StopFollowTime == Mathf.Infinity )
 		{
 			Sequence seq = DOTween.Sequence();
 
-//			Camera[] childCameras = GetComponentsInChildren<Camera>();
-//			foreach( Camera c in childCameras )
-//			{
-//				seq.Join( c.DOOrthoSize( normalOtherSize , CameraFollowFadeTime ).SetEase(Ease.OutCubic));
-//			}
 			AllCameraDoOrthoSize( normalOtherSize , CameraFollowFadeTime , 0 , Ease.OutCubic );
 			VignetteAndChromaticAberration effect = GetComponentInChildren<VignetteAndChromaticAberration>();
 			if ( effect != null )
@@ -201,7 +202,6 @@ public class CameraManager : MonoBehaviour {
 			seq.AppendInterval( 0.1f );
 			seq.AppendCallback(CameraStopFollowComplete);
 
-			follow = null;
 			StopFollowTime = Time.time;
 			StartFollowTime = Mathf.Infinity;
 		}
@@ -216,6 +216,22 @@ public class CameraManager : MonoBehaviour {
 		}
 	}
 
+	void AllCameraSetOrthoSize( float _to  )
+	{
+		float to = Mathf.Clamp( _to , focusOtherSize , ZoomOutOtherSize );
+
+		Camera[] childCameras = GetComponentsInChildren<Camera>();
+		foreach( Camera c in childCameras )
+		{
+			c.orthographicSize = to;
+		}
+	}
+
+	float GetCameraOrthoSize()
+	{
+		return Camera.main.orthographicSize;
+	}
+
 	void CameraStopFollowComplete()
 	{
 		if ( m_state == CameraState.FollowTrans )
@@ -227,22 +243,27 @@ public class CameraManager : MonoBehaviour {
 
 	void OnFirstFlower( Message msg )
 	{
+		if ( !m_enable ) return;
 		m_state = CameraState.Free;
 	}
 
 	void OnEndLevel(Message msg )
 	{
-		m_state = CameraState.Disable;
+		if ( !m_enable ) return;
 		RecordLevelPosition();
 		//fade this camera
-		GetComponent<Camera>().DOOrthoSize( EndFadeSize , EndFadeTime ).SetDelay( EndFadeDelay );
-//		Camera[] childCameras = GetComponentsInChildren<Camera>();
-//		foreach( Camera c in childCameras )
-//		{
-//			c.DOOrthoSize( EndFadeSize , EndFadeTime ).SetDelay( EndFadeDelay );
-//		}
+		Sequence seq = DOTween.Sequence();
+		seq.AppendInterval( EndFadeDelay );
+		seq.AppendCallback( EndLevelDelayAction );
+		seq.Append( GetComponent<Camera>().DOOrthoSize( EndFadeSize , EndFadeTime ));
+		seq.Append( LogicManager.LevelManager.GetLevelObject().transform.DOMove( Vector3.zero , EndFadeTime ));
+
 		AllCameraDoOrthoSize( EndFadeSize , EndFadeTime , EndFadeDelay , Ease.Linear );
-		LogicManager.LevelManager.GetLevelObject().transform.DOMove( Vector3.zero , EndFadeTime ).SetDelay(EndFadeDelay);
+	}
+
+	void EndLevelDelayAction()
+	{
+		m_state = CameraState.Disable;
 	}
 
 	void Awake()
@@ -263,7 +284,6 @@ public class CameraManager : MonoBehaviour {
 		SetupFrameSize();
 	}
 
-
 	void SetupFrameSize ()
 	{
 		Vector3 accessTopRight = Camera.main.ScreenToWorldPoint( Vector3.zero );
@@ -275,11 +295,11 @@ public class CameraManager : MonoBehaviour {
 
 		frameSize = accesableSize;
 
-		Debug.Log("Frame Size " + frameSize);
 	}
 	void RecordLevelPosition()
 	{
 		levelPosStartFollow = LogicManager.LevelManager.GetLevelObject().transform.position;
+		OthrSizeStartFollow = GetCameraOrthoSize();
 	}
 
 	Vector3 followLastPosition = Vector3.zero;
@@ -289,8 +309,10 @@ public class CameraManager : MonoBehaviour {
 		UpdateFollow();
 	}
 
+
 	void UpdateFollow()
 	{
+		if ( !m_enable ) return;
 		if ( m_state == CameraState.FollowTrans )
 		{
 			// check the follow time, if follow too long then stop
@@ -309,42 +331,99 @@ public class CameraManager : MonoBehaviour {
 			}
 
 			// if the follow game object is destoried, then stop
-			if ( follow != null && !follow.gameObject.activeSelf )
+			if ( !isFollowAvailable() )
 			{
 				 CameraStopFollow();
 			}
 
 			float timeFromStop = Time.time - StopFollowTime;
 			Vector3 toPos = lvlTrans.position;
+			float toOrthoSize = GetCameraOrthoSize();
 
 			float rate = 0.1f;
+			float orthSizeRate = 0.005f;
 			// if the follow not equal to null
 			// then the camera should follow the object
-			if ( follow != null && follow.gameObject.activeSelf ){
-				toPos = - (follow.gameObject.transform.position - lvlTrans.position );
+			if ( isFollowAvailable() ){
+				toPos = GetFollow();
+				// update the orth size
+				toOrthoSize = GetFollowMaxDistance() * 0.8f;
+
 				if ( timeFromStart > 0 ) {
 					rate = Mathf.Clamp01( timeFromStart / CameraFollowFadeTime );
 					if ( rate >= 1f )
 						StartFollowTime = Mathf.Infinity;
 				}
+
+//				AllCameraSetOrthoSize( Mathf.Lerp( GetCameraOrthoSize() , GetFollowMaxDistance() * 0.8f , 0.005f) );
 			}
 			// if the follow equal to null
 			// then the camera should go back to its initial position;
 			else{
 				toPos = levelPosStartFollow;
+				toOrthoSize = OthrSizeStartFollow;
 				if ( timeFromStop > 0 )
 				{
-					rate = Mathf.Clamp01( timeFromStop / CameraFollowFadeTime );
+					orthSizeRate = rate = Mathf.Clamp01( timeFromStop / CameraFollowFadeTime );
 				}
 			}
 
-//			Debug.Log(follow.name + " to " + toPos );
 			Vector3 pos = lvlTrans.position;
 			
 			pos = Vector3.Lerp( pos , toPos , rate );
 			lvlTrans.position = pos;
 
+			AllCameraSetOrthoSize( Mathf.Lerp( GetCameraOrthoSize() , toOrthoSize , orthSizeRate ) );
+
 		}
+	}
+
+	Vector3 GetFollow()
+	{
+		int count = 0;
+		Vector3 to = Vector3.one;
+		foreach( Petal p in blowPetals )
+		{
+			if ( p.isActiveAndEnabled && p.state == PetalState.Fly )
+			{
+				to = Vector3.Lerp( - p.transform.localPosition , to , 1f * count / ( count + 1 ));
+				count ++;
+			}
+		}
+//		(follow.gameObject.transform.position - lvlTrans.position );
+		return to;
+	}
+
+	float GetFollowMaxDistance()
+	{
+		float left = Mathf.Infinity;
+		float right = -Mathf.Infinity;
+		float buttom = Mathf.Infinity;
+		float top = -Mathf.Infinity;
+		foreach( Petal p in blowPetals )
+		{
+			if ( p.isActiveAndEnabled && p.state == PetalState.Fly )
+			{
+				if ( left > p.transform.localPosition.x ) left = p.transform.localPosition.x;
+				if ( right < p.transform.localPosition.x ) right = p.transform.localPosition.x;
+				if ( buttom > p.transform.localPosition.y ) buttom = p.transform.localPosition.y;
+				if ( top > p.transform.localPosition.y ) top = p.transform.localPosition.y;
+
+			}
+		}
+
+		float size = Mathf.Max( right - left  , top - buttom );
+		return size;
+	}
+
+	bool isFollowAvailable()
+	{
+		foreach( Petal p in blowPetals )
+		{
+			if ( p.isActiveAndEnabled && p.state == PetalState.Fly )
+				return true;
+		}
+		return false;
 	}
 
 	Vector3 GetNewPosition( Vector3 _pos , Vector3 delta )
@@ -375,17 +454,17 @@ public class CameraManager : MonoBehaviour {
 
 	void ZoomOut()
 	{
+		if ( !m_enable ) return;
 		if ( isZoomOut ) return;
 
 		AllCameraDoOrthoSize( ZoomOutOtherSize , Global.zoomFadeTime , 0 , Ease.OutCubic );
 		EventManager.Instance.PostEvent( EventDefine.ZoomOut );
 		isZoomOut = true;
-
-
 	}
 
 	void ZoomIn()
 	{
+		if ( !m_enable ) return;
 		if ( !isZoomOut ) return;
 
 		AllCameraDoOrthoSize( normalOtherSize , Global.zoomFadeTime , 0 , Ease.OutCubic );
@@ -438,6 +517,7 @@ public class CameraManager : MonoBehaviour {
 /// <param name="finger">Which Finger .</param>
 	void CreatInk( Vector3 posFinger , FingerGestures.Finger finger )
 	{
+		if ( !m_enable ) return;
 		GameObject ink = Instantiate ( inkPrefab ) as GameObject;
 		ink.transform.parent = LogicManager.LevelManager.GetLevelObject().transform;
 		Vector3 pos = Camera.main.ScreenToWorldPoint( posFinger );
@@ -456,10 +536,9 @@ public class CameraManager : MonoBehaviour {
 			inkDict.Add( finger.Index , inkCom );
 	}
 
-// Finger related 
-
 	void OnFingerUpBack( FingerUpEvent e )
 	{
+		if ( !m_enable ) return;
 		if ( inkDict.ContainsKey( e.Finger.Index ) && inkDict[e.Finger.Index] != null)
 		{
 			inkDict[e.Finger.Index].Fade();
@@ -469,6 +548,7 @@ public class CameraManager : MonoBehaviour {
 
 	void OnFingerHoverBack( FingerHoverEvent e )
 	{
+		if ( !m_enable ) return;
 		if ( inkDict.ContainsKey( e.Finger.Index ) && inkDict[e.Finger.Index] != null)
 		{
 			if ( e.Finger.DistanceFromStart < inkDict[e.Finger.Index].affectRange() ) {
@@ -483,6 +563,7 @@ public class CameraManager : MonoBehaviour {
 
 	void OnFingerStationaryBack( FingerMotionEvent e )
 	{
+		if ( !m_enable ) return;
 		if ( e.Phase == FingerMotionPhase.Updated )
 		{
 
@@ -501,6 +582,7 @@ public class CameraManager : MonoBehaviour {
 
 	void OnFingerDownBack( FingerDownEvent e )
 	{
+		if ( !m_enable ) return;
 		GameObject selection = e.Selection;
 		if ( e.Finger.Phase == FingerGestures.FingerPhase.Begin )
 		{
@@ -514,6 +596,7 @@ public class CameraManager : MonoBehaviour {
 		
 	void OnFingerMoveBack( FingerMotionEvent e )
 	{
+		if ( !m_enable ) return;
 		if ( enabled && m_state == CameraState.Free )
 		{
 			// update the level position according to the finger movement
@@ -562,19 +645,35 @@ public class CameraManager : MonoBehaviour {
 	float pinchStartGap = 0;
 	void OnPinchBack(  PinchGesture guesture )
 	{
-		if ( guesture.Phase == ContinuousGesturePhase.Started )
+		if ( !m_enable ) return;
+//		if ( guesture.Phase == ContinuousGesturePhase.Started )
+//		{
+//			pinchStartGap = guesture.Gap;
+//		}
+//		if ( guesture.Phase == ContinuousGesturePhase.Ended )
+//		{
+//			if ( guesture.Gap > pinchStartGap )
+//			{
+//				ZoomOut();
+//			}
+//			else
+//			{
+//				ZoomIn();
+//			}
+//		}
+		if ( guesture.Phase == ContinuousGesturePhase.Updated )
 		{
-			pinchStartGap = guesture.Gap;
-		}
-		if ( guesture.Phase == ContinuousGesturePhase.Ended )
-		{
-			if ( guesture.Gap > pinchStartGap )
+			float orthSize = GetCameraOrthoSize();
+			orthSize += guesture.Delta * 0.05f;
+			orthSize = Mathf.Clamp( orthSize , focusOtherSize , ZoomOutOtherSize );
+			AllCameraSetOrthoSize( orthSize );
+			if (  isZoomOutTutorial ) 
 			{
-				ZoomOut();
-			}
-			else
-			{
-				ZoomIn();
+				if ( guesture.Delta > 0 && GetCameraOrthoSize() > 6f )
+				{
+					EventManager.Instance.PostEvent( EventDefine.ZoomOut  );
+					isZoomOutTutorial = false;
+				}
 			}
 		}
 	}

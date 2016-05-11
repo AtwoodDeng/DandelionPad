@@ -15,7 +15,8 @@ public class GestureManager : MonoBehaviour {
         // if (swipeTime <= 0 )
         //    return;
         // swipeTime = swipeTime - 1;
-        
+		if ( LogicManager.isSetting ) return;
+
 		// make sure we started the swipe gesture on our swipe object
 		GameObject selection = gesture.StartSelection;  // we use the object the swipe started on, instead of the current one
         
@@ -30,6 +31,8 @@ public class GestureManager : MonoBehaviour {
 
 	void OnTap( TapGesture gesture )
 	{
+		if ( LogicManager.isSetting ) return;
+
 		GameObject selection = gesture.StartSelection;  
 		if (selection == null )
 			return;
@@ -43,6 +46,8 @@ public class GestureManager : MonoBehaviour {
 
 	void OnFingerDown( FingerDownEvent e )
 	{
+		if ( LogicManager.isSetting ) return;
+
 		GameObject selection = e.Selection;  
 		if (selection == null )
 			return;
@@ -55,6 +60,8 @@ public class GestureManager : MonoBehaviour {
 
 	void OnFingerUp( FingerUpEvent e )
 	{
+		if ( LogicManager.isSetting ) return;
+
 		GameObject selection = e.Selection;  
 		if (selection == null )
 			return;
@@ -66,6 +73,7 @@ public class GestureManager : MonoBehaviour {
 
 	void OnFingerHover( FingerHoverEvent e )
 	{
+		if ( LogicManager.isSetting ) return;
 		
 		GameObject selection = e.Selection;  
 		if (selection == null )
@@ -78,6 +86,8 @@ public class GestureManager : MonoBehaviour {
 
 	void OnFingerMoveBack( FingerMotionEvent e )
 	{
+		if ( LogicManager.isSetting ) return;
+
 		GameObject selection = e.Selection;  
 		if (selection == null )
 			return;
