@@ -4,19 +4,14 @@ using System.Collections.Generic;
 using DG.Tweening;
 
 public class CreatureHide : Creature {
-	[SerializeField] float MoveRate = 0.1f;
+	[SerializeField] protected float ShowTime = 2f;
 	Vector3 toPosition; // local position
-	float toAngle;  // in degreed
-	[SerializeField] float HideRate = 0.2f;
+//	float toAngle;  // in degreed
+	[SerializeField] protected float HideTime = 0.5f;
 	[SerializeField] float Angle; // in degreed
 	[SerializeField] float Offset;
 	[SerializeField] EventDefine showUpEvent;
 	[SerializeField] EventDefine hideEvent;
-
-	float colliderRadius;
-	float rate;
-
-	List<GameObject> petals = new List<GameObject>();
 
 	protected override void OnEnable ()
 	{
@@ -39,22 +34,20 @@ public class CreatureHide : Creature {
 		seq.AppendCallback( ShowUp );
 	}
 
-	void ShowUp()
+	protected void ShowUp(  )
 	{
-		toPosition = GetLocalOffset(1f);
-		toAngle = Angle;
-		rate = MoveRate;
+		body.transform.DOKill();
+		body.transform.DOLocalMove( GetLocalOffset(1f) , ShowTime);
+//		toAngle = Angle;
 		isHide = false;
 	}
 
-	void Hide ()
+	protected void Hide ( )
 	{
-		toPosition = GetLocalOffset(0f);
-		toAngle = Angle + Random.Range( -20f , 20f );
-		rate = HideRate;
+		body.transform.DOKill();
+		body.transform.DOLocalMove( GetLocalOffset(0) , HideTime);
+			
 		isHide = true;
-
-		body.transform.DOShakeRotation( 0.5f , 25f );
 	}
 
 	void Hide( Message msg )
@@ -66,25 +59,16 @@ public class CreatureHide : Creature {
 	{
 		base.Init ();
 		toPosition = GetLocalOffset(0);
-		toAngle = Angle;
-		if ( GetComponent<SphereCollider>() != null )
-			colliderRadius = GetComponent<SphereCollider>().radius;
-		rate = MoveRate;
+//		toAngle = Angle;
 		body.transform.rotation = Quaternion.Euler( 0 , 0 , Angle );
 	}
 
-	void Update()
-	{ 
-		UpdateSelf();
-	}
 
-	bool isHide = false;
+	protected bool isHide = false;
 	void OnTriggerEnter( Collider col )
 	{
 		if ( ( col.tag == "Petal" || col.tag == "FlowerPetal" ) && !isHide )
 		{
-			petals.Add( col.gameObject );
-			Hide();
 
 			Sequence seq = DOTween.Sequence();
 			seq.AppendCallback( Hide );
@@ -93,31 +77,8 @@ public class CreatureHide : Creature {
 		}
 	}
 
-//	void OnTriggerExit( Collider col )
-//	{
-//		if ( col.tag == "Petal" || col.tag == "FlowerPetal" )
-//		{
-//			petals.Remove( col.gameObject );
-//			if ( petals.Count <= 0 )
-//			{
-//				ShowUp();
-//			}
-//		}
-//	}
 
-	void UpdateSelf()
-	{
-		if ( ! m_enable ) return;
-
-		Vector3 pos = body.transform.localPosition ;
-		pos = Vector3.Lerp( pos , toPosition , rate * Time.deltaTime * 30f *  LogicManager.PhysTimeRate );
-		body.transform.localPosition = pos;
-
-		//		body.transform.rotation = Quaternion.Lerp( body.transform.rotation , Quaternion.Euler( new Vector3( 0 ,0 , toAngle )) , rate * 30f * Time.deltaTime * LogicManager.PhysTimeRate);
-		
-	}
-
-	Vector3 GetLocalOffset( float process )
+	public Vector3 GetLocalOffset( float process )
 	{
 		return new Vector3( Offset * Mathf.Sin( - Angle * Mathf.Deg2Rad ) , Offset * Mathf.Cos( Angle * Mathf.Deg2Rad )) * process;
 	}

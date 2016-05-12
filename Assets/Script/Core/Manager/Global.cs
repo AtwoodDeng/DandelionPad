@@ -56,8 +56,9 @@ public class Global {
 		"alvl2",
 		"alvl5",
 		"alvl4",
-		"alvl6",
 		"alvl7",
+		"alvl8",
+		"alvl6",
 	};
 
 	static public float GaussSigma = 2.5f;
@@ -145,6 +146,7 @@ public enum PetalState
 	Dead,
 	LandGrow,
 	LandDead,
+	Keep,
 }
 [System.SerializableAttribute]
 public struct WindSensablParameter

@@ -339,5 +339,16 @@ public class Petal : MonoBehaviour  {
 			state = PetalState.FlyAway;
 	}
 
+	PetalState beforeKeep;
+	virtual public void Keep()
+	{
+		beforeKeep = state;
+		state = PetalState.Keep;
 
+	}
+
+	virtual public void Release()
+	{
+		state = beforeKeep;
+	}
 }

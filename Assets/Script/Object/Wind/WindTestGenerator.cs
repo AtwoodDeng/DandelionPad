@@ -65,8 +65,8 @@ public class WindTestGenerator : MonoBehaviour {
 
 		Init();
 
-		if ( isStartShow )
-			ShowUI();
+//		if ( isStartShow )
+//			ShowUI();
 	}
 
 	public void Init()

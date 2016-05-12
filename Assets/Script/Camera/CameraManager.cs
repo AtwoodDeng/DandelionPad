@@ -385,6 +385,19 @@ public class CameraManager : MonoBehaviour {
 
 		foreach( Petal p in blowPetals )
 		{
+			if ( p.isActiveAndEnabled && p.state == PetalState.Keep )
+			{
+				to = Vector3.Lerp( - ( p.transform.position - LogicManager.Level.transform.position) , to , 1f * count / ( count + 1 ));
+				count ++;
+
+			}
+		}
+
+		if ( count > 0 )
+			return to;
+		
+		foreach( Petal p in blowPetals )
+		{
 			if ( p.isActiveAndEnabled && p.state == PetalState.LandGrow )
 			{
 				to = Vector3.Lerp( - ( p.transform.position - LogicManager.Level.transform.position) , to , 1f * count / ( count + 1 ));
@@ -415,6 +428,21 @@ public class CameraManager : MonoBehaviour {
 		float buttom = Mathf.Infinity;
 		float top = -Mathf.Infinity;
 		bool isReturn = false;
+
+		foreach( Petal p in blowPetals )
+		{
+			if ( p.isActiveAndEnabled && p.state == PetalState.Keep )
+			{
+				if ( left > p.transform.localPosition.x ) left = p.transform.localPosition.x;
+				if ( right < p.transform.localPosition.x ) right = p.transform.localPosition.x;
+				if ( buttom > p.transform.localPosition.y ) buttom = p.transform.localPosition.y;
+				if ( top > p.transform.localPosition.y ) top = p.transform.localPosition.y;
+				isReturn = true;
+			}
+		}
+		if ( isReturn )
+			return Mathf.Max( right - left  , top - buttom );
+		
 		foreach( Petal p in blowPetals )
 		{
 			if ( p.isActiveAndEnabled && p.state == PetalState.LandGrow )
@@ -427,7 +455,6 @@ public class CameraManager : MonoBehaviour {
 			}
 		}
 
-//		float size = Mathf.Max( right - left  , top - buttom );
 		if ( isReturn )
 			return Mathf.Max( right - left  , top - buttom );
 

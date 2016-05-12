@@ -39,6 +39,7 @@ public class Petal3D : Petal {
 
 	bool isInited = false;
 
+	bool m_enable = true;
 
 	void Start()
 	{
@@ -214,10 +215,13 @@ public class Petal3D : Petal {
 
     void LateUpdate()
     {
-        UpdateVelocity(Time.deltaTime);
-        UpdatePosition(Time.deltaTime);
+		if ( m_enable )
+		{
+	        UpdateVelocity(Time.deltaTime);
+	        UpdatePosition(Time.deltaTime);
 
-        ResetForce();
+	        ResetForce();
+		}
     }
 
     Vector2 myVelocity = Vector2.zero;
@@ -357,5 +361,21 @@ public class Petal3D : Petal {
         // 	render.material.DOFade(0, 1f).OnComplete(base.SelfDestory);
         // }
     }
+
+	public override void Keep ()
+	{
+		base.Keep ();
+		m_enable = false;
+		petalModel.DOPause();
+		follow.windSensablParameter.shouldUpdate = false;
+	}
+
+	override public void Release()
+	{
+		base.Release();
+		m_enable = true;
+		petalModel.DOPlay();
+		follow.windSensablParameter.shouldUpdate = true;
+	}
 
 }
