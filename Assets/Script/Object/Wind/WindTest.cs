@@ -105,7 +105,8 @@ public class WindTest : MonoBehaviour , WindSensable {
 
 	public void Exit()
 	{
-		StartCoroutine(DoExit());
+		if ( gameObject.activeSelf )
+			StartCoroutine(DoExit());
 	}
 
 	IEnumerator DoExit()
