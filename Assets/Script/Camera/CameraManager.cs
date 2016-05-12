@@ -304,7 +304,7 @@ public class CameraManager : MonoBehaviour {
 		OthrSizeStartFollow = GetCameraOrthoSize();
 	}
 
-	Vector3 followLastPosition = Vector3.zero;
+//	Vector3 followLastPosition = Vector3.zero;
 	float StartFollowTime = Mathf.Infinity;
 
 	void LateUpdate () {
@@ -615,7 +615,7 @@ public class CameraManager : MonoBehaviour {
 	void OnFingerDownBack( FingerDownEvent e )
 	{
 		if ( !m_enable ) return;
-		GameObject selection = e.Selection;
+//		GameObject selection = e.Selection;
 		if ( e.Finger.Phase == FingerGestures.FingerPhase.Begin )
 		{
 			if ( enabled && m_state == CameraState.Free )
@@ -686,7 +686,7 @@ public class CameraManager : MonoBehaviour {
 			AllCameraSetOrthoSize( orthSize );
 			if (  isZoomOutTutorial ) 
 			{
-				if ( guesture.Delta > 0 && GetCameraOrthoSize() > 6f )
+				if ( guesture.Delta < 0 && GetCameraOrthoSize() > 6f )
 				{
 					EventManager.Instance.PostEvent( EventDefine.ZoomOut  );
 					isZoomOutTutorial = false;

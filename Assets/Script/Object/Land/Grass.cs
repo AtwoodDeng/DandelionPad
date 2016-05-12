@@ -30,11 +30,9 @@ public class Grass : MonoBehaviour {
 		seq.AppendCallback( PerishPre );
 		seq.AppendInterval( Random.Range( perishDelay.min , perishDelay.max ));
 		seq.AppendCallback( Perish );
-
-
 	}
 
-	public void Init( Vector3 normal )
+	public void Init( Vector3 normal , Color col )
 	{
 		float angel = Vector3.Angle( Vector3.up , normal );
 		if ( Vector3.Dot( Vector3.left , normal ) > 0)
@@ -42,6 +40,7 @@ public class Grass : MonoBehaviour {
 		transform.Rotate( new Vector3( 0 , 0 , - angel * normalAffect + Random.Range( -5f , 5f )));
 
 		StartCoroutine( GrowAfterSetUp());
+
 	}
 
 	IEnumerator GrowAfterSetUp()
@@ -69,7 +68,6 @@ public class Grass : MonoBehaviour {
 			// each of the stem would rotate a little bit
 			s.Rotate(new Vector3(0,0, partRotateAngle));
 
-
 			// set the grow animation
 			float myGrowTime = growTime/parts.Length * scaleY / 0.7f / LogicManager.AnimTimeRate;
 			if (i == parts.Length - 1 )
@@ -79,9 +77,7 @@ public class Grass : MonoBehaviour {
 
 			// update the grow time
 			totalGrowTime += myGrowTime ;
-
 		}
-
 		yield break;
 	}
 

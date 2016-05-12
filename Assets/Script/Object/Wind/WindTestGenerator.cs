@@ -15,7 +15,7 @@ public class WindTestGenerator : MonoBehaviour {
 
 	// ============= Connected Wind =============
 	[SerializeField] WindAdv wind;
-	Vector3 Size;
+//	Vector3 Size;
 
 	void OnEnable()
 	{
@@ -58,10 +58,10 @@ public class WindTestGenerator : MonoBehaviour {
 				wind = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindAdv>();
 			
 		}
-		if ( wind != null )
-		{
-			Size = wind.GetSize();
-		}
+//		if ( wind != null )
+//		{
+//			Size = wind.GetSize();
+//		}
 
 		Init();
 

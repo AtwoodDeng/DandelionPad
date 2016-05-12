@@ -8,7 +8,7 @@ public class TreeCreator : MonoBehaviour {
 	[SerializeField] GameObject[] dropPrefabs;
 	[SerializeField] Vector3 Range;
 	[SerializeField] MaxMin scaleRange;
-	[SerializeField] float dropScale = 1.2f;
+//	[SerializeField] float dropScale = 1.2f;
 
 	[SerializeField] float treeRate = 0.7f;
 

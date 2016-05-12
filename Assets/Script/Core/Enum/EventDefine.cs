@@ -53,4 +53,7 @@ public enum EventDefine
 
 	SwitchSetting = 50,
 
+	RockDepart = 55,
+	RockClose = 56,
+
 }

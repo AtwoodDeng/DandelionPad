@@ -110,6 +110,11 @@ public class Global {
 	}
 
 	static public float zoomFadeTime = 1.88f;
+
+	static public float GetRandomMinMax( MaxMin mm )
+	{
+		return Random.Range( mm.min , mm.max );
+	}
 }
 
 [System.SerializableAttribute]

@@ -30,6 +30,16 @@ public class LogicManager : MonoBehaviour {
 		}
 	}
 
+	static public Vector3 WorldPos2LevelPos ( Vector3 worldPos )
+	{
+		return worldPos - Level.transform.position;
+	}
+
+	static public Vector3 LevelPos2WorldPos ( Vector3 LevelPos )
+	{
+		return LevelPos + Level.transform.position;
+	}
+
 	static CameraManager m_cameraManager;
 	static public CameraManager CameraManager
 	{
@@ -232,7 +242,7 @@ public class LogicManager : MonoBehaviour {
 	void AllBlackEndLevel( Message msg )
 	{
 		DOTween.KillAll();
-		Application.LoadLevel( Global.NextLevel());
+		SceneManager.LoadScene( Global.NextLevel());
 	}
 
 	void AllBlackRetry( Message msg )

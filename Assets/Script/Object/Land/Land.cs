@@ -382,7 +382,7 @@ public class Land : MonoBehaviour {
 
 
 		Grass grass = grassObj.GetComponent<Grass>();
-		grass.Init( normal );
+		grass.Init( normal , thisSprite.color );
 	}
 
 	void FinishGrow()

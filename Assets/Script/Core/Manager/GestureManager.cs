@@ -52,6 +52,8 @@ public class GestureManager : MonoBehaviour {
 		if (selection == null )
 			return;
 
+		Debug.Log("Finger down " + selection.name );
+			
 		SenseGuesture sense = selection.GetComponent<SenseGuesture>();
 		if ( sense != null )
 			sense.DealOnFingerDown( e );
