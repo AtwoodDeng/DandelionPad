@@ -123,8 +123,7 @@ public class Land : MonoBehaviour {
 			}
 		}
 	}
-
-
+		
 	void OnGrowFlowerOn(Message msg )
 	{
 		PetalInfo info = (PetalInfo)msg.GetMessage( "info" );
@@ -163,7 +162,7 @@ public class Land : MonoBehaviour {
 	{
 		gameObject.tag = "Land";
 
-		oriPosition = transform.localPosition;
+
 
 		if ( grassPrefab == null )
 		{
@@ -178,6 +177,7 @@ public class Land : MonoBehaviour {
 	void InitLayer()
 	{
 		m_layer = (PosLayer) * 0.1f;
+		oriPosition = transform.localPosition;
 
 		if ( isBack ) 
 		{
@@ -279,7 +279,7 @@ public class Land : MonoBehaviour {
 	{
 		timer += Time.deltaTime;
 		if ( !isGrowFinished )
-		for ( int i = 0 ; i < 3 ; ++ i )
+		for ( int i = 0 ; i < effectParameter.dropNum ; ++ i )
 		{
 			if ( timer > coverInfos[i].delay )
 			{
@@ -290,7 +290,6 @@ public class Land : MonoBehaviour {
 				m_material.SetVector( "_CoverRec" + i.ToString() , coverInfos[i].tem );
 			}
 		}
-
 
 		if ( timer > effectParameter.growTime && !isGrowFinished )
 		{

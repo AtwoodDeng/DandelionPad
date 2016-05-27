@@ -97,32 +97,32 @@ public class Flower3D : Flower , WindSensable {
 
 	IEnumerator BlowAll()
 	{
-		int i = 0 ;
 
-		while(true)
+//		if ( petals != null && petals.Count > 0 )
+//		{
+//			for ( int i = 0 ; i < petals.Count ; ++ i )
+//			{
+//				int iPetal = i % petals.Count;
+//				if ( petals[iPetal].state == PetalState.Link ) {
+//					petals[iPetal].Blow( Vector2.up * 2f  + Global.GetRandomDirection() , Random.Range( 0 , endBlowVelocity ) , Petal.BlowType.Final );
+//				}
+//			}
+//		}
+
+		if ( flowerPetals != null && flowerPetals.Length > 0 )
 		{
-			if ( petals != null && petals.Count > 0 )
+			for ( int i = 0 ; i < flowerPetals.Length ; ++ i )
 			{
-
-				int iPetal = i % petals.Count;
-				if ( petals[iPetal].state == PetalState.Link ) {
-					petals[iPetal].Blow( Vector2.up + Global.GetRandomDirection() * 0.6f , Random.Range( 0 , endBlowVelocity ) , Petal.BlowType.FlyAway );
-				}
-			}
-
-			if ( flowerPetals != null && flowerPetals.Length > 0 )
-			{
-
 				int iFlower = i % flowerPetals.Length ;
 				if ( flowerPetals[iFlower].state == PetalState.Link ) {
-					flowerPetals[iFlower].Blow( Vector2.up + Global.GetRandomDirection() * 0.6f , Random.Range( 0 , endBlowVelocity ) , Petal.BlowType.FlyAway );
+					flowerPetals[iFlower].Blow( Vector2.up * 1f  + Global.GetRandomDirection() , Random.Range( 0 , endBlowVelocity ) , Petal.BlowType.Normal );
 				}
-					
-			}
-			i++;
 
-			yield return new WaitForSeconds( grow3DPara.flowerPetalUnlinkInterval );
+				yield return new WaitForSeconds( grow3DPara.flowerPetalUnlinkInterval );
+			}
+				
 		}
+
 	}
 		
 	public override void Grow () {
@@ -191,7 +191,7 @@ public class Flower3D : Flower , WindSensable {
             // set the scale(start from V3(1,0,1))
     		Vector3 scale = s.localScale;
     		float scaleY = 1f;
-            if (i != 0 ) scaleY = Random.Range(grow3DPara.stemScaleRange.min, grow3DPara.stemScaleRange.max);
+			if (i != 0 ) scaleY = Global.GetRandomMinMax( grow3DPara.stemScaleRange );
     		scale.y *= 0.001f * scaleY;
             s.localScale = scale;
 

@@ -51,13 +51,14 @@ public class Global {
 	static public string[] levelNames =
 	{
 		"begin",
-		"alvl0",
-		"alvl1",
-		"alvl2",
-		"alvl5",
+		"alvlStrike",
+		"alvlResize",
+		"alvlMoveVerticle",
+		"alvlFourRock",
+		"alvlWind",
+		"alvlIvyWall",
 		"alvl4",
 		"alvl7",
-		"alvl8",
 		"alvl6",
 	};
 
@@ -114,7 +115,11 @@ public class Global {
 
 	static public float GetRandomMinMax( MaxMin mm )
 	{
-		return Random.Range( mm.min , mm.max );
+		if ( mm.max > mm.min )
+			
+			return Random.Range( mm.min , mm.max );
+		else
+			return Random.Range( mm.max , mm.min );
 	}
 }
 
@@ -138,15 +143,16 @@ public struct MaxMin{
 
 public enum PetalState
 {
-	Link,
-	Fly,
-	Land,
-	FlyAway,
-	Init,
-	Dead,
-	LandGrow,
-	LandDead,
-	Keep,
+	Link,     // the petal on the flower
+	Fly,      // fly and be able to grow on land 
+	Land,     // No Used
+	FlyAway,  // fly away and dead petal
+	Init,     // the first petal of the level
+	Dead,     // after self destory, set to Dead
+	LandGrow, // hit the land and grow
+	LandDead, // hit the land and dead
+	Keep,    // keep by the monster
+	Final,   // used for final blow on level end
 }
 [System.SerializableAttribute]
 public struct WindSensablParameter

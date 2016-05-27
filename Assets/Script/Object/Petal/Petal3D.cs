@@ -30,6 +30,10 @@ public class Petal3D : Petal {
 
     [SerializeField] MaxMin flyAwayFadeTime;
 	[SerializeField] float normalFadeTime;
+	[SerializeField] float finalFadeTime;
+	[SerializeField] bool destoryOnOutOfFrame = true;
+
+	[SerializeField] Vector3 initVelocity;
     float petalModelLinkInit;
     Vector3 petalModelRotateToward;
 
@@ -46,7 +50,7 @@ public class Petal3D : Petal {
 		if ( state == PetalState.Init )
 		{
 			Init(null,0);
-			// Blow( Global.GetRandomDirection() , 0 , BlowType.Normal );
+			LinkVelocity( initVelocity );
 			myRotationVelocity = maxRotVel * .9f;
 		}
 	}
@@ -159,8 +163,6 @@ public class Petal3D : Petal {
 		myVelocity = vel;
 		UpdateVelocity(0);
 	}
-
-
     
     public override void Blow (Vector2 vel , BlowType blowType = BlowType.Normal) {
 		base.Blow(vel , blowType );
@@ -183,7 +185,10 @@ public class Petal3D : Petal {
 			{
 				petalModel.transform.DOScale( 0 , 0.5f ).SetDelay(normalFadeTime).OnComplete(SelfDestory);
 			}
-        }
+		}else if ( blowType.Equals( BlowType.Final ))
+		{
+			petalModel.transform.DOScale( 0 , finalFadeTime / 2f ).SetDelay( Random.Range( 0 , finalFadeTime / 2f ) ).OnComplete(SelfDestory);
+		}
         else if (blowType.Equals(BlowType.FlyAway))
         {
             float fadeTime = Random.Range( flyAwayFadeTime.min , flyAwayFadeTime.max);
@@ -252,8 +257,7 @@ public class Petal3D : Petal {
             myRotationVelocity = 0;
 			petalModel.Rotate( petalModelRotateToward * petalModelLinkIntense * Mathf.Sin( petalModelLinkInterval * Time.time + petalModelLinkInit) * edt * 30f );
         }
-
-		else if (state == PetalState.Fly || state == PetalState.FlyAway || state == PetalState.Init)
+		else if (state == PetalState.Fly || state == PetalState.FlyAway || state == PetalState.Init )
         {
             // update the velocity
             Vector2 _force = myForce / mass - new Vector2(0,gravity);
@@ -279,7 +283,27 @@ public class Petal3D : Petal {
 	        // drag the velocity
 	        // myVelocity *= ( 1f - drag );
 	        myRotationVelocity *= (1f - rotationDrag);
-    	}
+		}else if ( state == PetalState.Final )
+		{
+			// update the velocity
+			Vector2 _force = myForce / mass - new Vector2(0,gravity * 0.3f);
+			// up force
+			_force += Mathf.Pow( myVelocity.x , 2f ) * upForceIntense * Vector2.up ;
+			// drag force
+			_force -= drag * myVelocity * Mathf.Pow( myVelocity.magnitude , 2f ) ;
+
+			myVelocity += _force * edt / mass ;
+
+			Vector3 myUp = transform.up + myUpDiff;
+
+			//Rotate the petal
+			if ( state != PetalState.Init )
+				myRotationVelocity += (  Vector3.Cross(myUp, _force).z 
+					+ Vector3.Cross(- myUp , Vector3.down * rotationMass * 0.2f ).z ) / rotationMass * edt;
+
+			myRotationVelocity = Mathf.Clamp(myRotationVelocity, -maxRotVel, maxRotVel);
+			
+		}
 
     	// rigidbody velocity don't effect;
     	if (m_rigidbody != null)	
@@ -304,7 +328,7 @@ public class Petal3D : Petal {
 		}
 
 		// if out of the frame
-		if ( state == PetalState.Fly || state == PetalState.FlyAway )
+		if ( ( state == PetalState.Fly || state == PetalState.FlyAway ) && destoryOnOutOfFrame )
 		if ( !CameraManager.Instance.ifInFrameWorld( transform.localPosition ) && !isOutOfFrame)
 		{
 			isOutOfFrame = true;
@@ -348,7 +372,8 @@ public class Petal3D : Petal {
     protected override void SelfDestory () {
 		if ( state != PetalState.Dead)
 		{
-	        follow.windSensablParameter.shouldStore = false;
+			if ( follow != null )
+		        follow.windSensablParameter.shouldStore = false;
 	        base.SelfDestory();
 		}
 
@@ -376,6 +401,14 @@ public class Petal3D : Petal {
 		m_enable = true;
 		petalModel.DOPlay();
 		follow.windSensablParameter.shouldUpdate = true;
+	}
+
+
+	void OnDrawGizmos()
+	{
+		if ( state == PetalState.Init )
+			Gizmos.color = Color.green;
+		Gizmos.DrawLine( transform.position , transform.position + initVelocity );
 	}
 
 }

@@ -87,16 +87,10 @@ public class WindAdv : MonoBehaviour {
 	static public int OBSTACLE_3D_LAND = 1;
 	static public int OBSTACLE_EMPTY = 0;
 
-	void Awake()
-	{
-		
-	}
-
 	void Start()
 	{
 		Init();
 		InitBuffers();
-//		InitUI();
 
 		StartUpdateWind();
 	}

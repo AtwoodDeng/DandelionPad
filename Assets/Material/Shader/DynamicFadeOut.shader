@@ -52,8 +52,6 @@
 			int _BlurRange;
 
 
-//			float _GaussValue[100];
-
 			v2f vert (appdata v)
 			{
 				v2f o;
@@ -62,34 +60,11 @@
 				return o; 
 			}
 
-//			fixed4 getBlurColor( float2 uv , float blurDistance )
-//			{
-//				fixed4 sum = fixed4(0,0,0,0);
-//				int GaussSize = 9 ;
-//
-//				for ( int i = 0 ; i <= GaussSize - 1 ; i++ )
-//				{
-//				     float i_x = uv.x + (i-(GaussSize-1)/2) * blurDistance;
-//				     for ( int j = 0 ; j <= GaussSize - 1 ; j++ )
-//				     {
-//				     	float j_y = uv.y + (j-(GaussSize-1)/2) * blurDistance;
-//				     	sum +=  tex2D( _MainTex, float2(i_x,j_y) ) * _GaussValue[i*GaussSize+j];
-//				     }
-//		        }
-//		        return sum;
-//			}
-
 			 
 			fixed4 frag (v2f i) : SV_Target
 			{
 				// sample the texture
 				fixed4 col = tex2D(_MainTex, i.uv) * _Color;
-
-//				if (_BlurAmount > 0 )
-//				{
-//					col = getBlurColor( i.uv , _BlurAmount * 0.01f ) * _Color;
-//				}
-//				return col;
 
 				float coverA = 0;
 				int k = 0;

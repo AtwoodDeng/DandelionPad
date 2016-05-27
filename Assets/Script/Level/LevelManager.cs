@@ -68,7 +68,6 @@ public class LevelManager : MonoBehaviour {
 					return false;
 				}
 			}
-			Debug.Log("Check Level TRUE");
 			return true;
 		}
 

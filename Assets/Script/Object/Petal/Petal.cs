@@ -29,7 +29,8 @@ public class Petal : MonoBehaviour  {
 	public enum BlowType
 	{
 		Normal,
-		FlyAway
+		FlyAway,
+		Final,
 	}
 
 	void OnEnable()
@@ -106,6 +107,7 @@ public class Petal : MonoBehaviour  {
 			myGrowInfo.type = PetalType.Init;
 		growMsg.AddMessage("info", myGrowInfo);
 		growMsg.AddMessage("flower" , flower );
+		growMsg.AddMessage("land" , parent.gameObject );
 		EventManager.Instance.PostEvent(EventDefine.GrowFlowerOn, growMsg,this);
 	}
 
@@ -207,6 +209,7 @@ public class Petal : MonoBehaviour  {
 			{
 				GrowFlowerOn(growPoint, _normal , land );
 				state = PetalState.LandGrow;
+				selfDestoryTime *= 10f;
 
 			} else
 			{
@@ -337,6 +340,11 @@ public class Petal : MonoBehaviour  {
 			state = PetalState.Fly;
 		else if (blowType == BlowType.FlyAway)
 			state = PetalState.FlyAway;
+		else if ( blowType == BlowType.Final )
+		{
+			Debug.Log("Blow Final");
+			state = PetalState.Final;
+		}
 	}
 
 	PetalState beforeKeep;

@@ -12,6 +12,7 @@ public class WindTestGenerator : MonoBehaviour {
 	SpriteRenderer[] UIarrows;
 	WindTest[] WindTests;
 	[SerializeField] bool isStartShow = true;
+	[SerializeField] EventDefine showEvent;
 
 	// ============= Connected Wind =============
 	[SerializeField] WindAdv wind;
@@ -20,14 +21,14 @@ public class WindTestGenerator : MonoBehaviour {
 	void OnEnable()
 	{
 		EventManager.Instance.RegistersEvent(EventDefine.SwitchWind , OnSwithWind);
-		EventManager.Instance.RegistersEvent(EventDefine.LevelInitialized , OnLevelInitialized);
+		EventManager.Instance.RegistersEvent(showEvent , OnShowEvent);
 		EventManager.Instance.RegistersEvent(EventDefine.EndLevel , OnEndLevel);
 	}
 
 	void OnDisable()
 	{
 		EventManager.Instance.UnregistersEvent(EventDefine.SwitchWind , OnSwithWind);
-		EventManager.Instance.UnregistersEvent(EventDefine.LevelInitialized , OnLevelInitialized);
+		EventManager.Instance.UnregistersEvent(showEvent , OnShowEvent);
 		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel , OnEndLevel);
 	}
 
@@ -41,9 +42,9 @@ public class WindTestGenerator : MonoBehaviour {
 		UISwitch();
 	}
 
-	void OnLevelInitialized( Message msg )
+	void OnShowEvent( Message msg )
 	{
-		if ( isStartShow )
+		if ( msg.eventName != EventDefine.None )
 			ShowUI();	
 	}
 
@@ -64,6 +65,9 @@ public class WindTestGenerator : MonoBehaviour {
 //		}
 
 		Init();
+
+		if ( isStartShow )
+			ShowUI();
 
 //		if ( isStartShow )
 //			ShowUI();
