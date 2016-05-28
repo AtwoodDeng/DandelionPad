@@ -209,7 +209,6 @@ public class Petal : MonoBehaviour  {
 			{
 				GrowFlowerOn(growPoint, _normal , land );
 				state = PetalState.LandGrow;
-				selfDestoryTime *= 10f;
 
 			} else
 			{
@@ -343,7 +342,7 @@ public class Petal : MonoBehaviour  {
 		else if ( blowType == BlowType.Final )
 		{
 			Debug.Log("Blow Final");
-			state = PetalState.Final;
+			state = PetalState.FinalBlow;
 		}
 	}
 

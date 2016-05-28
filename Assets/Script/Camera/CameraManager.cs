@@ -79,10 +79,9 @@ public class CameraManager : MonoBehaviour {
 
 	void OnEnable()
 	{
+		EventManager.Instance.RegistersEvent(EventDefine.EndLevel, OnEndLevel);
 		EventManager.Instance.RegistersEvent(EventDefine.GrowFirstFlower, OnFirstFlower);
 		EventManager.Instance.RegistersEvent(EventDefine.GrowFlowerOn , OnGrowFlower );
-		EventManager.Instance.RegistersEvent(EventDefine.GrowFinalFlower , OnGrowFinalFlower );
-		EventManager.Instance.RegistersEvent(EventDefine.EndLevel, OnEndLevel);
 		EventManager.Instance.RegistersEvent(EventDefine.BlowFlower , OnBlow);
 		EventManager.Instance.RegistersEvent(EventDefine.PetalDestory , OnPetalDestory);
 		EventManager.Instance.RegistersEvent(EventDefine.BloomFlower , OnBloomFlower);
@@ -95,7 +94,6 @@ public class CameraManager : MonoBehaviour {
 		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel, OnEndLevel);
 		EventManager.Instance.UnregistersEvent(EventDefine.GrowFirstFlower, OnFirstFlower);
 		EventManager.Instance.UnregistersEvent(EventDefine.GrowFlowerOn , OnGrowFlower );
-		EventManager.Instance.UnregistersEvent(EventDefine.GrowFinalFlower , OnGrowFinalFlower );
 		EventManager.Instance.UnregistersEvent(EventDefine.BlowFlower , OnBlow);
 		EventManager.Instance.UnregistersEvent(EventDefine.PetalDestory , OnPetalDestory);
 		EventManager.Instance.UnregistersEvent(EventDefine.BloomFlower , OnBloomFlower);
@@ -105,9 +103,8 @@ public class CameraManager : MonoBehaviour {
 
 	void OnGrowFinalFlower( Message msg )
 	{
-		if ( State == CameraState.FollowTrans )
-			StartFollowTime = Time.time + 5f ;
 		
+
 	}
 
 	void OnGrowFlower( Message msg )
@@ -115,14 +112,34 @@ public class CameraManager : MonoBehaviour {
 		Petal petal = (Petal)msg.sender;
 		if ( petal != null )
 		{
-			for( int i = focusPetals.Count -1 ; i >= 0 ; --i )
+			PetalInfo info = (PetalInfo)msg.GetMessage("info");
+			if ( info.type == PetalType.Final )
 			{
-				if ( focusPetals[i].state != PetalState.LandGrow )
-					focusPetals.RemoveAt( i );
+				WatchFinalFlower(petal);
+			}else
+			{
+				focusPetals.Add( petal );
 			}
-			focusPetals.Add( petal );
-			if ( State == CameraState.FollowTrans )
-				StartFollowTime = Time.time;
+		}
+	}
+
+	Coroutine watchFinalFlower;
+
+	void WatchFinalFlower( Petal petal)
+	{
+		if ( watchFinalFlower == null )
+		{
+			m_state = CameraState.Disable;
+			watchFinalFlower = StartCoroutine( WatchFinalFlowerDo( - ( petal.transform.position - LogicManager.Level.transform.position ) + Vector3.down * 1.5f ) );
+		}
+	}
+
+	IEnumerator WatchFinalFlowerDo( Vector3 positon )
+	{
+		while ( true )
+		{
+			UpdatePositionToward( positon , 0.02f );
+			yield return null;
 		}
 	}
 
@@ -137,21 +154,33 @@ public class CameraManager : MonoBehaviour {
 	{
 		if ( !m_enable ) return;
 		int i = 0 ;
-
-		List<Petal> newPetal = new List<Petal>();
-
+		focusPetals.Clear();
 		while ( msg.ContainMessage( "petal" + i.ToString()))
 		{
 			Petal p = (Petal) msg.GetMessage("petal" + i.ToString());
 			if ( p.state == PetalState.Fly )
-				newPetal.Add( p );
+				focusPetals.Add( p );
 			i++;
 		}
+		if ( focusPetals.Count > 0 )
+			CameraBeginFollow();
 
-		focusPetals.AddRange(newPetal);
-
-		if ( newPetal.Count > 0 )
-			CameraStartFollow( newPetal[ Random.Range( 0, newPetal.Count)].transform );
+//		focusPetals.Clear();
+//		int i = 0 ;
+//		List<Petal> newPetal = new List<Petal>();
+//
+//		while ( msg.ContainMessage( "petal" + i.ToString()))
+//		{
+//			Petal p = (Petal) msg.GetMessage("petal" + i.ToString());
+//			if ( p.state == PetalState.Fly )
+//				newPetal.Add( p );
+//			i++;
+//		}
+//
+//		focusPetals.AddRange(newPetal);
+//
+//		if ( newPetal.Count > 0 )
+//			CameraStartFollow( newPetal[ Random.Range( 0, newPetal.Count)].transform );
 	}
 
 	void OnBloomFlower( Message msg )
@@ -161,38 +190,38 @@ public class CameraManager : MonoBehaviour {
 	
 //		CameraStopFollow();
 
-		if ( p != null )
-		{
-			for ( int i = 0 ; i < focusPetals.Count ; ++ i )
-			{
-				if ( focusPetals[i].ID == p.ID )
-				{
-					focusPetals.Clear();
-					break;
-				}
-			}
-		}
+//		if ( p != null )
+//		{
+//			for ( int i = 0 ; i < focusPetals.Count ; ++ i )
+//			{
+//				if ( focusPetals[i].ID == p.ID )
+//				{
+//					focusPetals.Clear();
+//					break;
+//				}
+//			}
+//		}
 	}
 
 	void OnPetalDestory(Message msg )
 	{
-		if ( msg.ContainMessage( "petal" ) )
-		{
-			Petal p = msg.GetMessage( "petal" ) as Petal;
-			for ( int i = 0 ; i < focusPetals.Count ; ++ i )
-			{
-				if ( focusPetals[i].ID == p.ID  )
-				{
-				// do this if the petal failed to grow the flower
-					if ( msg.ContainMessage("FailToGrow" ))
-					{
-						focusPetals.Clear();
-						CameraStopFollow();
-						break;
-					}
-				}
-			}
-		}
+//		if ( msg.ContainMessage( "petal" ) )
+//		{
+//			Petal p = msg.GetMessage( "petal" ) as Petal;
+//			for ( int i = 0 ; i < focusPetals.Count ; ++ i )
+//			{
+//				if ( focusPetals[i].ID == p.ID  )
+//				{
+//				// do this if the petal failed to grow the flower
+//					if ( msg.ContainMessage("FailToGrow" ))
+//					{
+//						focusPetals.Clear();
+//						CameraStopFollow();
+//						break;
+//					}
+//				}
+//			}
+//		}
 	}
 
 
@@ -203,12 +232,12 @@ public class CameraManager : MonoBehaviour {
 
 	[SerializeField] Vector3 levelPosStartFollow;
 	[SerializeField] float OthrSizeStartFollow;
-	void CameraStartFollow(Transform trans )
+	void CameraBeginFollow()
 	{
 		if ( !m_enable ) return;
 		if ( ( m_state == CameraState.Free || m_state == CameraState.Disable ) && StartFollowTime == Mathf.Infinity )
 		{
-			Debug.Log("Follow " + trans.name );
+			Debug.Log("Camera Begin Follow " );
 			RecordLevelPosition();
 			StartFollowTime = Time.time;
 			m_state = CameraState.FollowTrans;
@@ -219,6 +248,8 @@ public class CameraManager : MonoBehaviour {
 				//TODO remove the hard code effect intensity
 				DOTween.To( () => effect.intensity , (x) => effect.intensity = x , 0.38f , CameraFollowFadeTime ).SetEase(Ease.InCubic);
 			}
+
+
 		}
 	}
 
@@ -244,6 +275,8 @@ public class CameraManager : MonoBehaviour {
 
 			StopFollowTime = Time.time;
 			StartFollowTime = Mathf.Infinity;
+
+			focusPetals.Clear();
 		}
 	}
 
@@ -296,13 +329,17 @@ public class CameraManager : MonoBehaviour {
 	void OnEndLevel(Message msg )
 	{
 		if ( !m_enable ) return;
-		RecordLevelPosition();
+//		RecordLevelPosition();
 		//fade this camera
 		Sequence seq = DOTween.Sequence();
 		seq.AppendInterval( EndFadeDelay );
 		seq.AppendCallback( EndLevelDelayAction );
-		seq.Append( GetComponent<Camera>().DOOrthoSize( EndFadeSize , EndFadeTime ));
 		seq.Append( LogicManager.LevelManager.GetLevelObject().transform.DOMove( Vector3.zero , EndFadeTime ));
+		if ( watchFinalFlower != null )
+		{
+			StopCoroutine( watchFinalFlower);
+			watchFinalFlower = null;
+		}
 
 		AllCameraDoOrthoSize( EndFadeSize , EndFadeTime , EndFadeDelay , Ease.Linear );
 	}
@@ -412,15 +449,21 @@ public class CameraManager : MonoBehaviour {
 				}
 			}
 
-			Vector3 pos = lvlTrans.position;
-			pos = Vector3.Lerp( pos , toPos , rate );
-			if ( isLockY )
-				pos.y = lvlTrans.position.y;
-			lvlTrans.position = pos;
+			UpdatePositionToward( toPos , rate );
 
 			AllCameraSetOrthoSize( Mathf.Lerp( GetCameraOrthoSize() , toOrthoSize , orthSizeRate ) );
 
 		}
+	}
+
+	void UpdatePositionToward( Vector3 toPos , float rate )
+	{
+		Transform lvlTrans = LogicManager.LevelManager.GetLevelObject().transform;
+		Vector3 pos = lvlTrans.position;
+		pos = Vector3.Lerp( pos , toPos , rate );
+		if ( isLockY )
+			pos.y = lvlTrans.position.y;
+		lvlTrans.position = pos;
 	}
 
 	Vector3 GetFollow()
@@ -450,7 +493,9 @@ public class CameraManager : MonoBehaviour {
 		}
 
 		if ( count > 0 )
+		{
 			return to - Vector3.up * 1.5f;
+		}
 
 		foreach( Petal p in focusPetals )
 		{

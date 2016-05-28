@@ -20,7 +20,7 @@ public class LevelManager : MonoBehaviour {
 		Init();
 	}
 
-	void Init()
+	virtual protected void Init()
 	{
 		if ( pointAreas == null || pointAreas.Count <= 0 )
 		{

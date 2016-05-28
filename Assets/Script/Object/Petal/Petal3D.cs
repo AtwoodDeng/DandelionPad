@@ -283,7 +283,7 @@ public class Petal3D : Petal {
 	        // drag the velocity
 	        // myVelocity *= ( 1f - drag );
 	        myRotationVelocity *= (1f - rotationDrag);
-		}else if ( state == PetalState.Final )
+		}else if ( state == PetalState.FinalBlow )
 		{
 			// update the velocity
 			Vector2 _force = myForce / mass - new Vector2(0,gravity * 0.3f);

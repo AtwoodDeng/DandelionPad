@@ -57,9 +57,6 @@ public class Global {
 		"alvlFourRock",
 		"alvlWind",
 		"alvlIvyWall",
-		"alvl4",
-		"alvl7",
-		"alvl6",
 	};
 
 	static public float GaussSigma = 2.5f;
@@ -152,7 +149,7 @@ public enum PetalState
 	LandGrow, // hit the land and grow
 	LandDead, // hit the land and dead
 	Keep,    // keep by the monster
-	Final,   // used for final blow on level end
+	FinalBlow,   // used for final blow on level end
 }
 [System.SerializableAttribute]
 public struct WindSensablParameter
