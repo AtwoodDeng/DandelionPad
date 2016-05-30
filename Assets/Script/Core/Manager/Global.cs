@@ -57,6 +57,7 @@ public class Global {
 		"alvlFourRock",
 		"alvlWind",
 		"alvlIvyWall",
+		"alvlIvyDragon",
 	};
 
 	static public float GaussSigma = 2.5f;

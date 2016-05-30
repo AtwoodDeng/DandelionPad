@@ -14,6 +14,8 @@ public class WindTest : MonoBehaviour , WindSensable {
 	[SerializeField] GameObject model;
 	[SerializeField] SpriteRenderer sprite;
 	[SerializeField] MaxMin scaleRange;
+	[SerializeField] MaxMin velocityRange;
+
 
 	public enum State
 	{
@@ -34,6 +36,7 @@ public class WindTest : MonoBehaviour , WindSensable {
 		windVelocity = Vector2.zero;
 	}
 
+	public WindTestGenerator parent;
 
 
 	[SerializeField]public WindSensablParameter windSensablParameter;
@@ -70,6 +73,10 @@ public class WindTest : MonoBehaviour , WindSensable {
 		gameObject.SetActive(true);
 		transform.localScale = Random.Range( scaleRange.min , scaleRange.max ) * Vector3.one;
 		StartCoroutine(DoEnter(pos));
+
+		velocity = Vector2.zero;
+		rotateVel = 0;
+
 	}
 	IEnumerator DoEnter(Vector3 pos)
 	{
@@ -83,7 +90,7 @@ public class WindTest : MonoBehaviour , WindSensable {
 
 		BeginMove();
 		sprite.DOFade( 1f , fadeTime );
-		transform.position = pos;
+		transform.localPosition = pos;
 
 //		float scale = ( wind.GetSize().x + wind.GetSize().y ) * Random.Range( 1f , 2f );
 //		Vector3 oriPos = ( pos - wind.transform.position ).normalized * scale;
@@ -102,18 +109,23 @@ public class WindTest : MonoBehaviour , WindSensable {
 		state = State.Move;
 		windSensablParameter.shouldUpdate = true;
 	}
+		
 
-	public void Exit()
+	public void Exit( bool isReset )
 	{
-		if ( gameObject.activeSelf )
-			StartCoroutine(DoExit());
+		if ( gameObject.activeSelf && state == State.Move )
+			StartCoroutine(DoExit(isReset));
 	}
 
-	IEnumerator DoExit()
+	IEnumerator DoExit( bool isReset )
 	{
+		state = State.Exit;
 		yield return new WaitForSeconds( Random.Range( 0, fadeTimeDiff));
 
-		sprite.DOFade( 0f , fadeTime ).OnComplete(RealExit2);
+		if ( isReset )
+			sprite.DOFade( 0 , fadeTime ).OnComplete( Reset );
+		else
+			sprite.DOFade( 0f , fadeTime ).OnComplete(RealExit2);
 
 //		float scale = ( wind.GetSize().x + wind.GetSize().y ) * Random.Range( 1f , 2f );
 //		Vector3 fadePos = ( transform.position - wind.transform.position ).normalized * scale;
@@ -126,7 +138,6 @@ public class WindTest : MonoBehaviour , WindSensable {
 
 	void RealExit2()
 	{
-		state = State.Exit;
 		state = State.Invisible;
 		windSensablParameter.shouldUpdate = false;
 		gameObject.SetActive(false);
@@ -139,13 +150,15 @@ public class WindTest : MonoBehaviour , WindSensable {
 		gameObject.SetActive(false);
 	}
 
+
 	void UpdateWindTest()
 	{
-		
 		// update velocity
 		velocity += windVelocity * WindVelSense * Time.deltaTime * 30f * LogicManager.PhysTimeRate ;
 		velocity = Vector2.ClampMagnitude( velocity , maxVel * ( 1f + windVelocity.magnitude / 2f ) );
 		velocity *= 0.98f;
+
+		velocity = Mathf.Clamp( velocity.magnitude , velocityRange.min , velocityRange.max ) * velocity.normalized;
 
 		rotateVel += Vector3.Cross(transform.up, windVelocity * WindRotateSense ).z * Time.deltaTime * 30f * LogicManager.PhysTimeRate;
 		rotateVel = Mathf.Clamp(rotateVel, maxRotVel, -maxRotVel);
@@ -186,6 +199,19 @@ public class WindTest : MonoBehaviour , WindSensable {
 		pos.z = Global.WIND_UI_Z;
 		transform.localPosition = pos;
 		model.transform.Rotate( rotateToward * rotateVel * Time.deltaTime * 30f * LogicManager.PhysTimeRate );
+
+		if ( isOutOfWind() )
+			Exit(true);
+
+
+	}
+
+	bool isOutOfWind()
+	{
+		Vector3 pos = transform.position;
+		Vector3 windPos = wind.transform.position;
+		return ( pos.x > windPos.x + wind.GetSize().x / 2f ) || ( pos.y < windPos.x - wind.GetSize().x / 2f )
+			|| ( pos.y > windPos.y +  wind.GetSize().y / 2f ) || ( pos.y < windPos.y -  wind.GetSize().y/ 2f );
 	}
 
 	void OnCollisionEnter(Collision col)
@@ -194,11 +220,17 @@ public class WindTest : MonoBehaviour , WindSensable {
 		if ( col.collider.tag == "Land")
 		{
 			GetComponent<Collider>().enabled = false;
-			sprite.DOFade( 0 , 1f ).OnComplete(EnterRandomPos);
+			sprite.DOFade( 0 , 1f ).OnComplete(Reset);
 		}
 	}
 
-	public void EnterRandomPos()
+	public void Reset()
+	{
+		parent.ResetWindTest( this );
+	}
+
+
+	public void EnterRandomPosByWind()
 	{
 		GetComponent<Collider>().enabled = true;
 		Vector3 Size = wind.GetSize();

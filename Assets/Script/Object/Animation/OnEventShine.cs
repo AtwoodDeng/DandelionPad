@@ -22,6 +22,7 @@ public class OnEventShine : OnEvent {
 		{
 			sprite.enabled = true;
 			sprite.color = startColor;
+			sprite.DOKill();
 			sprite.DOColor( fadeToColor , time )
 				.SetDelay(delay).SetEase(easeType)
 				.OnComplete(CheckTheAlpha)
@@ -38,6 +39,7 @@ public class OnEventShine : OnEvent {
 
 			img.enabled = true;
 			img.color = startColor;
+			img.DOKill();
 			img.DOColor( fadeToColor , time )
 				.SetDelay(delay).SetEase(easeType)
 				.OnComplete(CheckTheAlpha)

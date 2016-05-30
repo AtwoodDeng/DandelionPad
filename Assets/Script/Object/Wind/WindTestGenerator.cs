@@ -8,9 +8,9 @@ public class WindTestGenerator : MonoBehaviour {
 //	[SerializeField] SpriteRenderer windBackUI;
 	[SerializeField] GameObject WindTestPrefab;
 //	[SerializeField] AnimationCurve ArrowScaleCurve;
-	[SerializeField] int windTestNum = 100;
+	[SerializeField] protected int windTestNum = 100;
 	SpriteRenderer[] UIarrows;
-	WindTest[] WindTests;
+	protected WindTest[] WindTests;
 	[SerializeField] bool isStartShow = true;
 	[SerializeField] EventDefine showEvent;
 
@@ -55,8 +55,7 @@ public class WindTestGenerator : MonoBehaviour {
 	{
 		if ( wind == null )
 		{
-			if ( GameObject.FindGameObjectWithTag("Wind") != null )
-				wind = GameObject.FindGameObjectWithTag("Wind").GetComponent<WindAdv>();
+			wind = (WindAdv)FindObjectOfType( typeof( WindAdv));
 			
 		}
 //		if ( wind != null )
@@ -78,36 +77,33 @@ public class WindTestGenerator : MonoBehaviour {
 //		windBackUI.transform.localScale = new Vector3( Size.x * 100f / windBackUI.sprite.texture.width 
 //			, Size.y * 100f / windBackUI.sprite.texture.height );
 //		windBackUI.DOFade(0,0);
-
-
 		WindTests = new WindTest[ windTestNum ];
 		for ( int i = 0 ; i < windTestNum ; ++ i )
 		{
 			GameObject windTest = Instantiate( WindTestPrefab ) as GameObject;
-			windTest.transform.SetParent( wind.transform );
+			windTest.transform.SetParent( this.transform );
 			windTest.SetActive(false);
 
 			WindTests[i] = windTest.GetComponent<WindTest>();
 			WindTests[i].wind = wind;
+			WindTests[i].parent = this;
 		}
 
 
 		UIShowed = false;
 	}
 
-	public void InitWindTestPos()
+	virtual public void InitWindTestPos()
 	{
 		for ( int i = 0 ; i < windTestNum ; ++ i )
 		{
-//			int k = 0;
-//			Vector3 ranPos = new Vector3 ( Random.Range( - Size.x / 2 , Size.x / 2 ) , Random.Range( - Size.y / 2 , Size.y / 2 ) , 0 ) + wind.transform.position;
-//			while( !wind.checkIsObsticle(ranPos) &&  k < 2000 ) 
-//			{
-//				ranPos = new Vector3 ( Random.Range( - Size.x / 2 , Size.x / 2 ) , Random.Range( - Size.y / 2 , Size.y / 2 ) , 0 ) + + wind.transform.position;
-//				++k;
-//			}
-			WindTests[i].EnterRandomPos();
+			ResetWindTest( WindTests[i] );
 		}
+	}
+
+	virtual public void ResetWindTest( WindTest windTest )
+	{
+		windTest.EnterRandomPosByWind();
 	}
 
 	float lastSwitchTime = -Mathf.Infinity;
@@ -122,9 +118,8 @@ public class WindTestGenerator : MonoBehaviour {
 		else 
 			ShowUI();
 	}
-	public void ShowUI()
+	 public void ShowUI()
 	{
-
 //		windBackUI.DOFade( 0.5f , 2f ).SetEase(Ease.OutExpo);
 		InitWindTestPos();
 
@@ -133,19 +128,16 @@ public class WindTestGenerator : MonoBehaviour {
 		UIShowed = true;
 	}
 
-	public void HideUI()
+	 public void HideUI()
 	{
 //		windBackUI.DOFade( 0f , 2f ).SetEase(Ease.Linear);
-
 		for ( int i = 0 ; i < windTestNum ; ++ i )
 		{
-
-			WindTests[i].Exit();
+			WindTests[i].Exit( false );
 		}
 
 		EventManager.Instance.PostEvent(EventDefine.HideWind);
 
 		UIShowed = false;
 	}
-
 }

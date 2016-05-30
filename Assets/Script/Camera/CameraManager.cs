@@ -21,9 +21,6 @@ public class CameraManager : MonoBehaviour {
 //	public float Boundary = 0.1f;
 //	public float speed = 5f;
 
-	[SerializeField] GameObject inkPrefab;
-	Dictionary<int,Ink> inkDict = new Dictionary<int, Ink>(); // key (int) for finger Index; Ink for the sprite corresponse
-
 	public Vector3 frame;
 	public Vector3 frameOffset;
 	public Vector3 initPos = Vector3.zero;
@@ -164,64 +161,16 @@ public class CameraManager : MonoBehaviour {
 		}
 		if ( focusPetals.Count > 0 )
 			CameraBeginFollow();
-
-//		focusPetals.Clear();
-//		int i = 0 ;
-//		List<Petal> newPetal = new List<Petal>();
-//
-//		while ( msg.ContainMessage( "petal" + i.ToString()))
-//		{
-//			Petal p = (Petal) msg.GetMessage("petal" + i.ToString());
-//			if ( p.state == PetalState.Fly )
-//				newPetal.Add( p );
-//			i++;
-//		}
-//
-//		focusPetals.AddRange(newPetal);
-//
-//		if ( newPetal.Count > 0 )
-//			CameraStartFollow( newPetal[ Random.Range( 0, newPetal.Count)].transform );
 	}
 
 	void OnBloomFlower( Message msg )
 	{
 		if ( !m_enable ) return;
 		Petal p = msg.sender as Petal;
-	
-//		CameraStopFollow();
-
-//		if ( p != null )
-//		{
-//			for ( int i = 0 ; i < focusPetals.Count ; ++ i )
-//			{
-//				if ( focusPetals[i].ID == p.ID )
-//				{
-//					focusPetals.Clear();
-//					break;
-//				}
-//			}
-//		}
 	}
 
 	void OnPetalDestory(Message msg )
 	{
-//		if ( msg.ContainMessage( "petal" ) )
-//		{
-//			Petal p = msg.GetMessage( "petal" ) as Petal;
-//			for ( int i = 0 ; i < focusPetals.Count ; ++ i )
-//			{
-//				if ( focusPetals[i].ID == p.ID  )
-//				{
-//				// do this if the petal failed to grow the flower
-//					if ( msg.ContainMessage("FailToGrow" ))
-//					{
-//						focusPetals.Clear();
-//						CameraStopFollow();
-//						break;
-//					}
-//				}
-//			}
-//		}
 	}
 
 
@@ -342,6 +291,13 @@ public class CameraManager : MonoBehaviour {
 		}
 
 		AllCameraDoOrthoSize( EndFadeSize , EndFadeTime , EndFadeDelay , Ease.Linear );
+
+		VignetteAndChromaticAberration effect = GetComponentInChildren<VignetteAndChromaticAberration>();
+		if ( effect != null )
+		{
+			//TODO remove the hard code effect intensity
+			DOTween.To( () => effect.intensity , (x) => effect.intensity = x , 0.42f , EndFadeTime  ).SetEase(Ease.InOutCubic);
+		}
 	}
 
 	void EndLevelDelayAction()
@@ -656,91 +612,10 @@ public class CameraManager : MonoBehaviour {
 		return true;
 	}
 		
-/// <summary>
-/// Creats the ink. Create the in by the position 
-/// </summary>
-/// <param name="posFinger">Position to create the ink.</param>
-/// <param name="finger">Which Finger .</param>
-	void CreatInk( Vector3 posFinger , FingerGestures.Finger finger )
-	{
-		if ( !m_enable ) return;
-		GameObject ink = Instantiate ( inkPrefab ) as GameObject;
-		ink.transform.parent = LogicManager.LevelManager.GetLevelObject().transform;
-		Vector3 pos = Camera.main.ScreenToWorldPoint( posFinger );
-		pos .z = 0;
-		ink.transform.position = pos;
-
-		Ink inkCom = ink.GetComponent<Ink>();
-	
-		if ( inkDict.ContainsKey( finger.Index ))
-		{
-			if (  inkDict[finger.Index] != null )
-				inkDict[finger.Index].Fade();
-			inkDict[finger.Index] = inkCom;
-		}
-		else
-			inkDict.Add( finger.Index , inkCom );
-	}
-
-
-	void OnFingerUpBack( FingerUpEvent e )
-	{
-		if ( !m_enable ) return;
-		if ( inkDict.ContainsKey( e.Finger.Index ) && inkDict[e.Finger.Index] != null)
-		{
-			inkDict[e.Finger.Index].Fade();
-			inkDict[e.Finger.Index] = null;
-		}
-	}
-
-	void OnFingerHoverBack( FingerHoverEvent e )
-	{
-		if ( !m_enable ) return;
-		if ( inkDict.ContainsKey( e.Finger.Index ) && inkDict[e.Finger.Index] != null)
-		{
-			if ( e.Finger.DistanceFromStart < inkDict[e.Finger.Index].affectRange() ) {
-				inkDict[e.Finger.Index].Spread(Time.deltaTime);
-			}
-			else {
-				inkDict[e.Finger.Index].Fade();
-				inkDict[e.Finger.Index] = null;
-			}	
-		}
-	}
-
-	void OnFingerStationaryBack( FingerMotionEvent e )
-	{
-		if ( !m_enable ) return;
-		if ( e.Phase == FingerMotionPhase.Updated )
-		{
-
-			if ( inkDict.ContainsKey( e.Finger.Index ) && inkDict[e.Finger.Index] != null)
-			{
-				if ( e.Finger.DistanceFromStart < inkDict[e.Finger.Index].affectRange() ) {
-					inkDict[e.Finger.Index].Spread(Time.deltaTime);
-				}
-				else {
-					inkDict[e.Finger.Index].Fade();
-					inkDict[e.Finger.Index] = null;
-				}	
-			}
-		}
-	}
-
-	void OnFingerDownBack( FingerDownEvent e )
-	{
-		if ( !m_enable ) return;
-//		GameObject selection = e.Selection;
-		if ( e.Finger.Phase == FingerGestures.FingerPhase.Begin )
-		{
-			if ( enabled && m_state == CameraState.Free )
-				CreatInk( e.Position , e.Finger );
-			else 
-				EventManager.Instance.PostEvent( EventDefine.UnableToMove );
-		}
-
-	}
-		
+	/// <summary>
+	/// On finger move back, interact with the plants in the background 
+	/// </summary>
+	/// <param name="e">E.</param>
 	void OnFingerMoveBack( FingerMotionEvent e )
 	{
 		if ( !m_enable ) return;
@@ -781,12 +656,13 @@ public class CameraManager : MonoBehaviour {
 					LogicManager.LevelManager.GetWind().StartUpdateWind();
 				}
 			}
-		}else
-		{
-			//show the unable to move feedback
-			if ( e.Phase == FingerMotionPhase.Started )
-				EventManager.Instance.PostEvent( EventDefine.UnableToMove );
 		}
+//		else
+//		{
+//			//show the unable to move feedback
+//			if ( e.Phase == FingerMotionPhase.Started )
+//				EventManager.Instance.PostEvent( EventDefine.UnableToMove );
+//		}
 	}
 
 	void OnPinchBack(  PinchGesture guesture )
@@ -820,8 +696,6 @@ public class CameraManager : MonoBehaviour {
 		Vector3 accesableSize = accessBotLeft - accessTopRight;
 		accesableSize.x += frame.x ;
 		accesableSize.y += frame.y ;
-
-//		Gizmos.DrawWireCube( transform.position + frameOffset , accesableSize );
 
 		Gizmos.DrawWireCube( frameOffset , accesableSize );
 

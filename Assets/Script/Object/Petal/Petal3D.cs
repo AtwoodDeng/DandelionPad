@@ -262,12 +262,12 @@ public class Petal3D : Petal {
             // update the velocity
             Vector2 _force = myForce / mass - new Vector2(0,gravity);
             // up force
-            _force += Mathf.Pow( myVelocity.x , 2f ) * upForceIntense * Vector2.up ;
+			_force += Mathf.Pow( myVelocity.x , 2f ) * upForceIntense * Vector2.up / mass ;
             // drag force
-            _force -= drag * myVelocity * Mathf.Pow( myVelocity.magnitude , 2f ) ;
+            _force -= drag * myVelocity * Mathf.Pow( myVelocity.magnitude , 2f ) / mass ;
  
 
-			myVelocity += _force * edt / mass ;
+			myVelocity += _force * edt ;
 
             Vector3 myUp = transform.up + myUpDiff;
             
