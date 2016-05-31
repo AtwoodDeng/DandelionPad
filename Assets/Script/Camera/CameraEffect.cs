@@ -9,8 +9,10 @@ public class CameraEffect : MonoBehaviour {
 	[SerializeField] GameObject inkSpreadPrefab;
 	[SerializeField] GameObject inkTrailPrefab;
 	[SerializeField] float trailFadeOutTime;
+	[SerializeField] float spreadFadeOutTime;
 	SplineTrailRenderer temInkTrail;
 	Dictionary<int,Ink> inkDict = new Dictionary<int, Ink>(); // key (int) for finger Index; Ink for the sprite corresponse
+	List<InkSpread> inkSpreadList = new List<InkSpread>();
 	[SerializeField] bool ifUseInk = false;
 	[SerializeField] bool ifUseInkTrail = false;
 	bool m_enable = true;
@@ -19,20 +21,29 @@ public class CameraEffect : MonoBehaviour {
 	{
 		EventManager.Instance.RegistersEvent(EventDefine.SwitchSetting , OnSwitchSetting );
 		EventManager.Instance.RegistersEvent( EventDefine.BlowFlower , OnBlowFlower );
+		EventManager.Instance.RegistersEvent( EventDefine.EndLevel , OnLevelEnd );
 	}
 
 	void OnDisable()
 	{
 		EventManager.Instance.UnregistersEvent(EventDefine.SwitchSetting , OnSwitchSetting );
 		EventManager.Instance.UnregistersEvent( EventDefine.BlowFlower , OnBlowFlower );
+		EventManager.Instance.UnregistersEvent( EventDefine.EndLevel , OnLevelEnd );
 	}
 
+
+	void OnLevelEnd( Message msg )
+	{
+		FadeInkSpread();
+	}
 	void OnBlowFlower( Message msg )
 	{
 		if ( msg.ContainMessage( "petal0" ) )
 		{
+			FadeInkSpread();
 			Petal p = (Petal) msg.GetMessage( "petal0" );
-			CreateInkSpread( p.transform.position );
+			Vector2 vel = (Vector2) msg.GetMessage( "Velocity");
+			CreateInkSpread( p.transform.position , vel );
 		}
 
 	}
@@ -68,21 +79,23 @@ public class CameraEffect : MonoBehaviour {
 			inkDict.Add( finger.Index , inkCom );
 	}
 
-	void CreateInkSpread( Vector3 worldPos )
+	void CreateInkSpread( Vector3 worldPos , Vector2 velocity)
 	{
-		GameObject ink = Instantiate ( inkSpreadPrefab ) as GameObject;
-		ink.transform.parent = LogicManager.LevelManager.GetLevelObject().transform;
-		worldPos.z = 0 ;
-		ink.transform.position = worldPos;
+		inkSpreadList = InkSpread.CreateInkSpreadByVelocity( worldPos , velocity , inkSpreadPrefab , spreadFadeOutTime );
+	}
 
-		Ink inkCom = ink.GetComponent<Ink>();
-		inkCom.Fade();
-		
+	void FadeInkSpread()
+	{
+		foreach( InkSpread ink in inkSpreadList)
+		{
+			ink.Fade( spreadFadeOutTime );
+		}
+		inkSpreadList.Clear();
 	}
 
 	void CreateInkTrail( Vector3 posFinger )
 	{
-		Debug.Log("Create Ink ");
+//		Debug.Log("Create Ink ");
 		GameObject ink = Instantiate( inkTrailPrefab ) as GameObject;
 		ink.transform.SetParent( transform , true );
 		Vector3 pos = Camera.main.ScreenToWorldPoint( posFinger );
@@ -110,20 +123,20 @@ public class CameraEffect : MonoBehaviour {
 	void OnFingerMoveBack( FingerMotionEvent e )
 	{
 		if ( !m_enable ) return;
-		Debug.Log("On Finger Move Back " + e.Phase );
+//		Debug.Log("On Finger Move Back " + e.Phase );
 		// deal with ink
 		if ( ifUseInk )
 		{
-		if ( inkDict.ContainsKey( e.Finger.Index ) && inkDict[e.Finger.Index] != null)
-		{
-			if ( e.Finger.DistanceFromStart < inkDict[e.Finger.Index].affectRange() ) {
-				inkDict[e.Finger.Index].Spread(Time.deltaTime);
+			if ( inkDict.ContainsKey( e.Finger.Index ) && inkDict[e.Finger.Index] != null)
+			{
+				if ( e.Finger.DistanceFromStart < inkDict[e.Finger.Index].affectRange() ) {
+					inkDict[e.Finger.Index].Spread(Time.deltaTime);
+				}
+				else {
+					inkDict[e.Finger.Index].Fade();
+					inkDict[e.Finger.Index] = null;
+				}	
 			}
-			else {
-				inkDict[e.Finger.Index].Fade();
-				inkDict[e.Finger.Index] = null;
-			}	
-		}
 		}
 
 		// deal with ink trail

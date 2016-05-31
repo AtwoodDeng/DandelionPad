@@ -344,7 +344,10 @@ public class Flower3D : Flower , WindSensable {
 	{
 		if ( velocity.magnitude < minBlowVelocity )
 			return false;
-		if ( petals.Count < petalNum - 1 )
+		if ( petals == null || petals.Count <= 0 )
+			return false;
+		
+		if ( GetPetalNumByType(PetalState.Link) <= 0 )
 			return false;
 		Petal petal = petals[0];
 		if ( petal != null && Time.time - initPetalTime < petal.GetGrowTime())
