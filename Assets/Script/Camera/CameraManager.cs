@@ -299,6 +299,16 @@ public class CameraManager : MonoBehaviour {
 			//TODO remove the hard code effect intensity
 			DOTween.To( () => effect.intensity , (x) => effect.intensity = x , 0.45f , EndFadeTime * 0.5f  ).SetEase(Ease.InOutCubic);
 		}
+
+		// close the UICamera
+		Camera[] childCameras = GetComponentsInChildren<Camera>();
+		string[] UILayer = {"UI"};
+		foreach( Camera c in childCameras )
+		{
+			
+			if ( (c.cullingMask & LayerMask.GetMask(UILayer)) > 0 )
+				c.enabled = false;
+		}
 	}
 
 	void EndLevelDelayAction()
@@ -642,18 +652,7 @@ public class CameraManager : MonoBehaviour {
 			{
 				if ( e.Phase == FingerMotionPhase.Updated )
 				{
-					GameObject levelObj = LogicManager.LevelManager.GetLevelObject();
-					Vector3 pos = - levelObj.transform.position;
-					// move the camera
-					Vector3 worldDelta = - Global.V2ToV3( e.Finger.DeltaPosition ) * Global.Pixel2Unit * senseIntense;
-					// pos -= Global.V2ToV3( e.Finger.DeltaPosition ) * Global.Pixel2Unit * senseIntense;
-					// restrict the range
-					pos = GetNewPosition( pos , worldDelta );
-					levelObj.transform.position = - pos;
-					if ( ifSendMoveMessage ){
-						EventManager.Instance.PostEvent(EventDefine.MoveCamera );
-						ifSendMoveMessage = false;
-					}
+					MoveCamera( e.Finger.DeltaPosition );
 				}else if ( e.Phase == FingerMotionPhase.Ended )
 				{
 					LogicManager.LevelManager.GetWind().StartUpdateWind();
@@ -666,6 +665,29 @@ public class CameraManager : MonoBehaviour {
 //			if ( e.Phase == FingerMotionPhase.Started )
 //				EventManager.Instance.PostEvent( EventDefine.UnableToMove );
 //		}
+	}
+
+	public void MoveCamera( Vector2 screenDelta )
+	{
+		if ( State == CameraState.Free )
+		{
+			// get the tem position
+			GameObject levelObj = LogicManager.LevelManager.GetLevelObject();
+			Vector3 pos = - levelObj.transform.position;
+
+			// move the camera
+			Vector3 worldDelta = - Global.V2ToV3( screenDelta ) * Global.Pixel2Unit * senseIntense;
+			// pos -= Global.V2ToV3( e.Finger.DeltaPosition ) * Global.Pixel2Unit * senseIntense;
+			// restrict the range
+			pos = GetNewPosition( pos , worldDelta );
+
+			// send message if needed
+			levelObj.transform.position = - pos;
+			if ( ifSendMoveMessage ){
+				EventManager.Instance.PostEvent(EventDefine.MoveCamera );
+				ifSendMoveMessage = false;
+			}
+		}
 	}
 
 	void OnPinchBack(  PinchGesture guesture )

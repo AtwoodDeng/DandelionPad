@@ -154,6 +154,17 @@ public class LogicManager : MonoBehaviour {
 		}
 	}
 
+	public Color trailColor = Color.black;
+
+	static public Color TrailColor
+	{
+		get {
+			if ( Instance.trailColor == Color.black )
+				return Global.DefaultTrailColor;
+			
+			return Instance.trailColor;
+		}
+	}
 
 
 	void OnEnable()
@@ -185,6 +196,8 @@ public class LogicManager : MonoBehaviour {
 		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel,OnEndLevel);
 		EventManager.Instance.UnregistersEvent(EventDefine.SwitchSetting,OnSwitchSetting);
 		EventManager.Instance.UnregistersEvent(EventDefine.SwitchWind,OnSwitchWind);
+
+
 	}
 
 	void Awake()
@@ -266,7 +279,23 @@ public class LogicManager : MonoBehaviour {
 	void AllBlackEndLevel( Message msg )
 	{
 		DOTween.KillAll();
-		SceneManager.LoadScene( Global.NextLevel());
+		AsyncOperation AO = SceneManager.LoadSceneAsync( Global.NextLevel());
+		StartCoroutine( LoadNextLevel( AO ));
+	}
+
+	IEnumerator LoadNextLevel( AsyncOperation AO )
+	{
+		AO.allowSceneActivation = false;
+
+		float timer = 5f; 
+		while( ! AO.isDone && timer > 0 )
+		{	
+			timer -= Time.deltaTime;
+			Debug.Log("AO " + AO.progress );
+			yield return null;
+		}
+
+		AO.allowSceneActivation = true;
 	}
 
 	void AllBlackRetry( Message msg )

@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 using DG.Tweening;
 
@@ -11,6 +12,8 @@ public class FunctionWindows : MonoBehaviour {
 	[SerializeField] Button windButton;
 	[SerializeField] Button zoomButton;
 	[SerializeField] Button retryButton;
+	[SerializeField] Button[] ArrowButtons;
+	[SerializeField] Button eyeButton;
 
 	[SerializeField] GameObject setting;
 	[SerializeField] Slider musicVolumeSlider;
@@ -40,14 +43,60 @@ public class FunctionWindows : MonoBehaviour {
 		StartCoroutine(ActiveButton(windViewInterval, windButton));
 	}
 
+	bool canMove = false;
+	public void MoveBegin()
+	{
+		canMove = true;
+	}
+
+	public void MoveEnd()
+	{
+		canMove = false;
+
+	}
+	public void OnButtonMoveVertical( float delta )
+	{
+		if ( canMove )
+		CameraManager.Instance.MoveCamera( new Vector2( 0 , delta ) );
+	}
+
+	public void OnButtonMoveHorizontal( float delta )
+	{
+		if ( canMove )
+		CameraManager.Instance.MoveCamera( new Vector2( delta , 0 ) );
+	}
+
 	void OnEnable()
 	{
 		EventManager.Instance.RegistersEvent(EventDefine.LevelDead,OnLevelDead);
+		EventManager.Instance.RegistersEvent(EventDefine.EndLevel,OnLevelEnd);
+		EventManager.Instance.RegistersEvent(EventDefine.BeginLevel,OnLevelBegin);
 	}
 
 	void Disable()
 	{
 		EventManager.Instance.UnregistersEvent(EventDefine.LevelDead,OnLevelDead);
+		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel,OnLevelEnd);
+		EventManager.Instance.UnregistersEvent(EventDefine.BeginLevel,OnLevelBegin);
+	}
+
+	void OnLevelBegin( Message msg )
+	{
+
+		Button[] buttons = GetComponentsInChildren<Button>();
+		foreach( Button btn in buttons )
+		{
+			btn.image.DOFade( 0 , 2f ).From();
+		}
+	}
+
+	void OnLevelEnd( Message msg )
+	{
+		Button[] buttons = GetComponentsInChildren<Button>();
+		foreach( Button btn in buttons )
+		{
+			btn.image.DOFade( 0 , 2f );
+		}
 	}
 
 	void OnLevelDead( Message msg )
@@ -96,10 +145,11 @@ public class FunctionWindows : MonoBehaviour {
 			clickSound.Play();
 	}
 
-	void Start()
+	void Awake()
 	{
 		setting.SetActive(false);
 
+		windButton.interactable = true;
 		foreach( string name in Global.inactiveWindLevel )
 			if ( name == SceneManager.GetActiveScene().name )
 			{

@@ -115,7 +115,7 @@ public class CameraEffect : MonoBehaviour {
 	void CreateInkSpread( Vector3 worldPos , Vector2 velocity , Transform parent )
 	{
 		Debug.Log( inkSpreadList.Count );
-		InkSpread.CreateInkSpreadByVelocity( inkSpreadList , worldPos , velocity , parent);
+		InkSpread.CreateInkSpreadBlowFlower( inkSpreadList , worldPos , velocity , parent);
 	}
 
 	void FadeOutInkSpread()
@@ -135,7 +135,9 @@ public class CameraEffect : MonoBehaviour {
 		pos .z = 0;
 		ink.transform.position = pos;
 
+
 		SplineTrailRenderer temInkTrail = ink.GetComponent<SplineTrailRenderer>();
+		temInkTrail.vertexColor = LogicManager.TrailColor;
 
 		if ( inkTrailDict.ContainsKey( finger.Index ))
 		{
@@ -147,6 +149,8 @@ public class CameraEffect : MonoBehaviour {
 		}
 		else
 			inkTrailDict.Add( finger.Index , temInkTrail );
+
+
 	}
 
 	void UpdateInkTrail( Vector2 ScreenPos ,  FingerGestures.Finger finger )
@@ -295,6 +299,7 @@ public class CameraEffect : MonoBehaviour {
 			{
 				if ( GetTempInkCircle() != null )
 				{
+					GetTempInkCircle().SetColor(LogicManager.TrailColor);
 					GetTempInkCircle().FadeIn();
 					GetTempInkCircle().UpdateCircle( guesture.Position , guesture.Gap );
 				}

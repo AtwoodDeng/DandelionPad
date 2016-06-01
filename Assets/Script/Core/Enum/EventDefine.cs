@@ -56,4 +56,6 @@ public enum EventDefine
 	RockDepart = 55,
 	RockClose = 56,
 
+	FreeCamera = 60,
+
 }

@@ -183,12 +183,12 @@ public class Petal3D : Petal {
 			SetColliderTrigger( false );
 			if ( !isFlowerPetal )
 			{
-				petalModel.transform.DOScale( 0 , 0.5f ).SetDelay(normalFadeTime).OnComplete(SelfDestory);
+				transform.DOScale( 0 , 0.5f ).SetDelay(normalFadeTime).OnComplete(SelfDestory);
 			}
 		}else if ( blowType.Equals( BlowType.Final ))
 		{
 			SetColliderTrigger( false );
-			petalModel.transform.DOScale( 0 , finalFadeTime / 2f ).SetDelay( Random.Range( 0 , finalFadeTime / 2f ) ).OnComplete(SelfDestory);
+			transform.DOScale( 0 , finalFadeTime / 2f ).SetDelay( Random.Range( 0 , finalFadeTime / 2f ) ).OnComplete(SelfDestory);
 		}
         else if (blowType.Equals(BlowType.FlyAway))
         {
@@ -196,9 +196,9 @@ public class Petal3D : Petal {
 			// set different animation for flower petal/ non-flower petal
 			// flower petal should have a longer animation
 			if ( isFlowerPetal )
-				petalModel.transform.DOScale(0, fadeTime).OnComplete( SelfDestory ).SetEase(Ease.InExpo );
+				transform.DOScale(0, fadeTime).OnComplete( SelfDestory ).SetEase(Ease.InExpo );
 			else
-				petalModel.transform.DOScale(0, fadeTime).OnComplete( SelfDestory ).SetEase(Ease.OutCubic );
+				transform.DOScale(0, fadeTime).OnComplete( SelfDestory ).SetEase(Ease.OutCubic );
 //			if ( isFlowerPetal )
 //			{
 //				SpriteRenderer render = petalModel.GetComponentInChildren<SpriteRenderer>();
@@ -216,7 +216,6 @@ public class Petal3D : Petal {
         follow.windSensablParameter.shouldUpdate = true;
 
     }
-
     //Chaos
 
     void LateUpdate()
@@ -404,6 +403,12 @@ public class Petal3D : Petal {
 		follow.windSensablParameter.shouldUpdate = true;
 	}
 
+	public override void AvoidDeath ()
+	{
+		base.AvoidDeath ();
+		transform.DOKill();
+		destoryOnOutOfFrame = false;
+	}
 
 	void OnDrawGizmos()
 	{

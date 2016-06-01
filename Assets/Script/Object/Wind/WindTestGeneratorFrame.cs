@@ -8,9 +8,9 @@ public class WindTestGeneratorFrame : WindTestGenerator {
 
 	public override void ResetWindTest (WindTest windTest)
 	{
-		Vector3 pos = new Vector3( Random.Range( Frame.x / 2f , - Frame.x / 2f ) 
-			, Random.Range( Frame.y / 2f , - Frame.y / 2f ),
-			0);
+		Vector3 pos = new Vector3( Random.Range( - Frame.x / 2f , Frame.x / 2f ) 
+			, Random.Range( - Frame.y / 2f , Frame.y / 2f ),
+			0) + transform.position;
 		
 		windTest.Enter( pos );
 	}
@@ -31,7 +31,7 @@ public class WindTestGeneratorFrame : WindTestGenerator {
 	{
 		for ( int i = 0 ; i < windTestNum ; ++ i )
 		{
-			Debug.Log("Reset " +  i );
+//			Debug.Log("Reset " +  i );
 			ResetWindTest( WindTests[i] );
 
 			yield return new WaitForSeconds( GenerateInterval );

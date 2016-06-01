@@ -216,6 +216,8 @@ public class Petal : MonoBehaviour  {
 			{
 				destoryMessage.AddMessage("FailToGrow" , 1);
 				state = PetalState.LandDead;
+
+				InkSpread.CreateInkSpreadHitLand( null , growPoint , land.transform , Random.Range( 2, 5) , 0.25f );
 			}
 
 			transform.DOScale( 0 , selfDestoryTime ).OnComplete(SelfDestory);
@@ -356,6 +358,11 @@ public class Petal : MonoBehaviour  {
 		beforeKeep = state;
 		state = PetalState.Keep;
 
+	}
+
+	virtual public void AvoidDeath()
+	{
+		
 	}
 
 	virtual public void Release()

@@ -47,7 +47,7 @@ public class LevelManager : MonoBehaviour {
 		}
 	}
 
-	public bool CheckLevelFinished()
+	virtual public bool CheckLevelFinished()
 	{
 		if ( endCondition == EndingCondition.PointArea )
 		{
@@ -87,7 +87,7 @@ public class LevelManager : MonoBehaviour {
 		return true;
 	}
 
-	public bool CheckLevelFinishWithoutLand( Land land )
+	virtual public bool CheckLevelFinishWithoutLand( Land land )
 	{
 		if ( lands == null ) Init();
 		foreach( Land l in lands )

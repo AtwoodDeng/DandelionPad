@@ -21,6 +21,12 @@ public class InkCircle : MonoBehaviour {
 		initAlpha = sprite.color.a;
 	}
 
+	public void SetColor( Color col)
+	{
+		col.a = sprite.color.a;
+		sprite.color = col;
+	}
+
 	void LateUpdate()
 	{
 		transform.Rotate( Vector3.forward , spinRate * Time.deltaTime );
@@ -57,7 +63,8 @@ public class InkCircle : MonoBehaviour {
 	Coroutine fadeOutCor ;
 	public void FadeOut( )
 	{
-		fadeOutCor = StartCoroutine( FadeCor( fadeOutTime  ) ); 
+		if ( gameObject.activeSelf )
+			fadeOutCor = StartCoroutine( FadeCor( fadeOutTime  ) ); 
 	}
 
 	IEnumerator FadeCor( float fadeTime  )

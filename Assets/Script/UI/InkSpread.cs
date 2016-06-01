@@ -11,9 +11,38 @@ public class InkSpread : MonoBehaviour {
 //	[SerializeField] AnimationCurve sizeCurve;
 	float initAlpha;
 
-	static public void CreateInkSpreadByVelocity( List<InkSpread> list , Vector3 pos , Vector2 velocity , Transform parent )
+	static GameObject m_prefab;
+	static GameObject Prefab
 	{
-		float scaleSense = 0.04f;
+		get {
+			if ( m_prefab == null )
+				m_prefab = (GameObject)Resources.Load( Global.INKSPREAD_PATH);
+			return m_prefab;
+		}
+	}
+	static public void CreateInkSpreadHitLand( GameObject _prefab, Vector3 pos , Transform parent , int number , float scale )
+	{
+		if ( _prefab == null )
+			_prefab = Prefab;
+		
+		for( int i = 0 ; i < number; ++ i )
+		{
+			GameObject ink = Instantiate( Prefab ) as GameObject;
+			ink.transform.position = pos + Global.V2ToV3( Global.GetRandomDirection()) * Random.Range( 0 , scale * 5f );
+			ink.transform.localScale = Vector3.one * scale * Random.Range( 0.5f , 2f );
+			ink.transform.SetParent( parent , true);
+			ink.transform.Rotate( Vector3.forward , Random.Range( 0 , 360f ));
+
+			InkSpread inkCom = ink.GetComponent<InkSpread>();
+			inkCom.sprite.SetSprite( "InkSpread" + Random.Range( 1 , 4 ).ToString());
+
+			inkCom.Fade();
+		}
+	}
+
+	static public void CreateInkSpreadBlowFlower( List<InkSpread> list , Vector3 pos , Vector2 velocity , Transform parent )
+	{
+		float scaleSense = 0.05f;
 		float distanSense = 0.03f;
 		float flyDistance = 0.008f;
 		float fadeDelay = 0.05f;
@@ -21,13 +50,12 @@ public class InkSpread : MonoBehaviour {
 		float spreadTime = 20f;
 			
 		int j = 0;
-		Debug.Log(list.Count );
+
 		//Secondary Ink
 		for( float i = 0f ; i < 4f ; i = i + 1f )
 		{
 			while ( list[j].gameObject.activeSelf && j < list.Count - 1 )
 			{
-				Debug.Log("j = " +j );
 				j ++;
 			}
 
@@ -46,13 +74,13 @@ public class InkSpread : MonoBehaviour {
 				ink.transform.SetParent( parent );
 				ink.transform.position = pos + Global.V2ToV3( velocity ) * mFlyDistance 
 					+ Global.V2ToV3( Global.GetRandomDirection() * Random.Range( 0 , mDistanSense));
-				float toScale = ( 0.1f + Mathf.Sqrt( velocity.magnitude ) * mScaleSense ) * Random.Range( 0.8f , 1.2f ) ;
+				float toScale = ( 0.15f + Mathf.Sqrt( velocity.magnitude ) * mScaleSense ) * Random.Range( 0.8f , 1.2f ) ;
 				ink.transform.localScale = Vector3.zero ;
 
 				ink.sprite.SetSprite( "InkSpread" + Random.Range( 1 , 4 ).ToString());
 				ink.transform.Rotate( Vector3.forward , Random.Range( 0 , 360f ));
 
-				Color col = ink.sprite.color;
+				Color col = LogicManager.TrailColor;
 				col.a =  ink.initAlpha;
 				ink.sprite.color = col;
 
@@ -63,6 +91,7 @@ public class InkSpread : MonoBehaviour {
 
 			}
 		}
+
 	}
 
 	void Awake()

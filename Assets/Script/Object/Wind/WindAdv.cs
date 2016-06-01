@@ -15,10 +15,9 @@ public class WindAdv : MonoBehaviour {
 
 	// *************  UI **************
 	[SerializeField] SpriteRenderer windBackUI;
-//	[SerializeField] GameObject WindTestPrefab;
 	[SerializeField] AnimationCurve ArrowScaleCurve;
-//	[SerializeField] int windTestNum = 100;
 	[SerializeField] GameObject windArrowPrefab;
+	[SerializeField] Sprite[] windArrowSprites;
 	[SerializeField] float UIDensity = 0.5f;
 	ArrowEntry[] UIarrows;
 	[SerializeField] float ArrowShowThreshod = 0.5f;
@@ -781,19 +780,14 @@ public class WindAdv : MonoBehaviour {
 				}
 			}
 
-		for ( int k = 1 ; k <= 1 ; ++ k )
+		int k = 2;
 		for( int i = 0 ; i < UIWidth ; ++ i )
 			for ( int j = 0 ; j < UIHeight ; ++ j )
 				if ( UIarrows[i * UIHeight + j].isIncluded )
 					{
-						SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
-
-						Vector2 velocity = GetVelocity( arrow.transform.position );
-						Vector2 neighbouVel = GetNeighboughUIAverage( i , j , k );
-
-						if ( ( velocity - neighbouVel ).magnitude / velocity.magnitude < ArrowShowThreshod )
+						if ( ! IfDifferentFromNeighbour( i , j , k , ArrowShowThreshod ))
 						{
-							MergeNeighbough( i , j , k );
+							MergeNeighbough( i , j ,  k );
 						}
 					}
 
@@ -807,12 +801,16 @@ public class WindAdv : MonoBehaviour {
 					arrow.enabled = true;
 
 
-					float vel = ArrowScaleCurve.Evaluate( velocity.magnitude );
-					arrow.transform.localScale = new Vector3( 0.2f , vel , 1f ) 
-							* Mathf.Pow( UIarrows[i * UIHeight + j].value , 0.2f );
+//					float vel = ArrowScaleCurve.Evaluate( velocity.magnitude );
+//					arrow.transform.localScale = new Vector3( 0.3f , vel , 1f ) 
+//						* Mathf.Pow( UIarrows[i * UIHeight + j].value , 0.3f );
+					arrow.transform.localScale = Vector3.one * 0.3f
+						* Mathf.Pow( velocity.magnitude , 0.25f );
 					float angel = Mathf.Atan2( velocity.y , velocity.x ) * Mathf.Rad2Deg;
 					angel -= 90f ;
 					arrow.transform.eulerAngles = new Vector3( 0 , 0 , angel );
+
+					arrow.sprite = ( velocity.magnitude > 5f ) ? windArrowSprites[2] : (velocity.magnitude > 1f)? windArrowSprites[1] : windArrowSprites[0];
 				}
 				else
 				{
@@ -846,7 +844,7 @@ public class WindAdv : MonoBehaviour {
 
 		for( int ii = i - radius ; ii <= i + radius ; ++ ii )
 		{
-			for ( int jj = j - radius ; jj < j + radius ; ++ jj )
+			for ( int jj = j - radius ; jj <= j + radius ; ++ jj )
 			{
 				if ( ii >= 0 && ii < UIWidth && jj >= 0 && jj < UIHeight )
 				{
@@ -861,13 +859,42 @@ public class WindAdv : MonoBehaviour {
 		}
 	}
 
+	bool IfDifferentFromNeighbour( int i , int j , int radius , float thredshod )
+	{
+		Vector3 velocity = GetVelocity( UIarrows[ i * UIHeight + j ].sprite.transform.position );
+
+		int count = 0;
+		int total = 0;
+		for( int ii = i - radius ; ii <= i + radius ; ++ ii )
+		{
+			for ( int jj = j - radius ; jj <= j + radius ; ++ jj )
+			{
+				if ( ii >= 0 && ii < UIWidth && jj >= 0 && jj < UIHeight )
+				{
+					if ( i != ii && j != jj && UIarrows[ ii * UIHeight + jj ].isIncluded )
+					{
+						Vector3 neighbouVel = GetVelocity( UIarrows[ ii * UIHeight + jj ].sprite.transform.position ) ;
+						if ( ( velocity - neighbouVel ).magnitude / velocity.magnitude < thredshod )
+						{
+							count ++;
+						}
+						total ++;
+					}
+				}
+			}
+		}
+		if ( total == 0 ) 
+			return true;
+		return (1f * count / total) < 0.1f;
+	}
+
 	Vector2 GetNeighboughUIAverage( int i , int j , int radius )
 	{
 		int count = 0 ;
 		Vector2 sum = Vector3.zero;
 		for( int ii = i - radius ; ii <= i + radius ; ++ ii )
 		{
-			for ( int jj = j - radius ; jj < j + radius ; ++ jj )
+			for ( int jj = j - radius ; jj <= j + radius ; ++ jj )
 			{
 				if ( ii >= 0 && ii < UIWidth && jj >= 0 && jj < UIHeight )
 				{

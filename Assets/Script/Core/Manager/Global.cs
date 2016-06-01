@@ -58,6 +58,8 @@ public class Global {
 		"alvlWind",
 		"alvlIvyWall",
 		"alvlIvyDragon",
+		"alvlToCave",
+		"blvlCave",
 	};
 
 	static public string[] inactiveWindLevel =
@@ -96,6 +98,7 @@ public class Global {
 
 	static public string BGM_PATH = "Prefab/System/BGM";
 	static public string TRANS_PATH = "Prefab/System/Transform";
+	static public string INKSPREAD_PATH = "Prefab/System/InkSpread";
 
 	static public Vector3 CAMERA_INIT_POSITION = new Vector3( 0  , 0 , -10f);
 
@@ -128,6 +131,8 @@ public class Global {
 		else
 			return Random.Range( mm.max , mm.min );
 	}
+
+	static public Color DefaultTrailColor = new Color( 0.5f , 0.5f , 0.5f );
 }
 
 [System.SerializableAttribute]

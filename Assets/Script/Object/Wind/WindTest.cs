@@ -90,7 +90,7 @@ public class WindTest : MonoBehaviour , WindSensable {
 
 		BeginMove();
 		sprite.DOFade( 1f , fadeTime );
-		transform.localPosition = pos;
+		transform.position = pos;
 
 //		float scale = ( wind.GetSize().x + wind.GetSize().y ) * Random.Range( 1f , 2f );
 //		Vector3 oriPos = ( pos - wind.transform.position ).normalized * scale;
@@ -122,10 +122,19 @@ public class WindTest : MonoBehaviour , WindSensable {
 		state = State.Exit;
 		yield return new WaitForSeconds( Random.Range( 0, fadeTimeDiff));
 
-		if ( isReset )
-			sprite.DOFade( 0 , fadeTime ).OnComplete( Reset );
-		else
-			sprite.DOFade( 0f , fadeTime ).OnComplete(RealExit2);
+		if ( sprite != null && sprite.gameObject.activeSelf )
+		{
+			if ( isReset )
+				sprite.DOFade( 0 , fadeTime ).OnComplete( Reset );
+			else
+				sprite.DOFade( 0 , fadeTime ).OnComplete( RealExit2 );
+		}else
+		{
+			if ( isReset)
+				Reset();
+			else
+				RealExit2();
+		}
 
 //		float scale = ( wind.GetSize().x + wind.GetSize().y ) * Random.Range( 1f , 2f );
 //		Vector3 fadePos = ( transform.position - wind.transform.position ).normalized * scale;
@@ -168,41 +177,48 @@ public class WindTest : MonoBehaviour , WindSensable {
 		Vector3 pos = transform.localPosition;
 		pos += Global.V2ToV3( velocity ) * Time.deltaTime * LogicManager.PhysTimeRate;
 
-		if ( wind == null )
+		if ( isOutOfWind() )
 		{
-			wind = GetComponentInParent<WindAdv>();
+			Exit(true);
 		}
-		if ( wind != null )
-		{
-			if ( pos.x > wind.GetSize().x / 2 + 0.1f )
-			{
-				pos.x -= wind.GetSize().x ;
-				pos.y = Random.Range( - wind.GetSize().y / 2 , wind.GetSize().y / 2 );
-			}
-			if ( pos.x < - wind.GetSize().x / 2 - 0.1f ) {
-				pos.x += wind.GetSize().x ;
-				pos.y = Random.Range( - wind.GetSize().y / 2 , wind.GetSize().y / 2 );
-			}
-			if ( pos.y > wind.GetSize().y / 2 + 0.1f)
-			{
-				pos.y -= wind.GetSize().y ;
-				pos.x = Random.Range( - wind.GetSize().x / 2 , wind.GetSize().x / 2 );
 
-			}
-			if ( pos.y < - wind.GetSize().y / 2 - 0.1f )
-			{
-				pos.y += wind.GetSize().y ;
-				pos.x = Random.Range( - wind.GetSize().x / 2 , wind.GetSize().x / 2 );
-			}
+		if ( velocity.magnitude < 0.05f )
+		{
+			Exit(true);
 		}
+		
+//		if ( wind == null )
+//		{
+//			wind = GetComponentInParent<WindAdv>();
+//		}
+//			
+//		if ( wind != null )
+//		{
+//			if ( pos.x > wind.GetSize().x / 2 + 0.1f )
+//			{
+//				pos.x -= wind.GetSize().x ;
+//				pos.y = Random.Range( - wind.GetSize().y / 2 , wind.GetSize().y / 2 );
+//			}
+//			if ( pos.x < - wind.GetSize().x / 2 - 0.1f ) {
+//				pos.x += wind.GetSize().x ;
+//				pos.y = Random.Range( - wind.GetSize().y / 2 , wind.GetSize().y / 2 );
+//			}
+//			if ( pos.y > wind.GetSize().y / 2 + 0.1f)
+//			{
+//				pos.y -= wind.GetSize().y ;
+//				pos.x = Random.Range( - wind.GetSize().x / 2 , wind.GetSize().x / 2 );
+//
+//			}
+//			if ( pos.y < - wind.GetSize().y / 2 - 0.1f )
+//			{
+//				pos.y += wind.GetSize().y ;
+//				pos.x = Random.Range( - wind.GetSize().x / 2 , wind.GetSize().x / 2 );
+//			}
+//		}
 
 		pos.z = Global.WIND_UI_Z;
 		transform.localPosition = pos;
 		model.transform.Rotate( rotateToward * rotateVel * Time.deltaTime * 30f * LogicManager.PhysTimeRate );
-
-		if ( isOutOfWind() )
-			Exit(true);
-
 
 	}
 
@@ -210,8 +226,8 @@ public class WindTest : MonoBehaviour , WindSensable {
 	{
 		Vector3 pos = transform.position;
 		Vector3 windPos = wind.transform.position;
-		return ( pos.x > windPos.x + wind.GetSize().x / 2f ) || ( pos.y < windPos.x - wind.GetSize().x / 2f )
-			|| ( pos.y > windPos.y +  wind.GetSize().y / 2f ) || ( pos.y < windPos.y -  wind.GetSize().y/ 2f );
+		return ( pos.x > windPos.x + wind.GetSize().x / 2f - 0.1f ) || ( pos.x < windPos.x - wind.GetSize().x / 2f + 0.1f )
+			|| ( pos.y > windPos.y + wind.GetSize().y / 2f - 0.1f) || ( pos.y < windPos.y -  wind.GetSize().y/ 2f + 0.1f);
 	}
 
 	void OnCollisionEnter(Collision col)

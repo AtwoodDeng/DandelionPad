@@ -131,7 +131,6 @@ public class Flower : MonoBehaviour {
 			msg.AddMessage("Flower" , this );
 			msg.AddMessage("Velocity" , velocity );
 
-
 			if ( useChance )
 			{
 				int blow = 0;
