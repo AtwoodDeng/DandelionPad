@@ -97,7 +97,6 @@ public class Flower3D : Flower , WindSensable {
 
 	IEnumerator BlowAll()
 	{
-
 //		if ( petals != null && petals.Count > 0 )
 //		{
 //			for ( int i = 0 ; i < petals.Count ; ++ i )
@@ -115,7 +114,8 @@ public class Flower3D : Flower , WindSensable {
 			{
 				int iFlower = i % flowerPetals.Length ;
 				if ( flowerPetals[iFlower].state == PetalState.Link ) {
-					flowerPetals[iFlower].Blow( Vector2.up * 1f  + Global.GetRandomDirection() , Random.Range( 0 , endBlowVelocity ) , Petal.BlowType.Normal );
+					
+					flowerPetals[iFlower].Blow( ( Vector2.up * 1f  + Global.GetRandomDirection() ) ,  Random.Range( 0 , endBlowVelocity ) , Petal.BlowType.Normal );
 				}
 
 				yield return new WaitForSeconds( grow3DPara.flowerPetalUnlinkInterval );

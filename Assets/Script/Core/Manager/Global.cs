@@ -60,6 +60,15 @@ public class Global {
 		"alvlIvyDragon",
 	};
 
+	static public string[] inactiveWindLevel =
+	{
+		"begin",
+		"alvlStrike",
+		"alvlResize",
+		"alvlMoveVerticle",
+		"alvlFourRock",
+	};
+
 	static public float GaussSigma = 2.5f;
 	static public int GaussSize = 9;
 

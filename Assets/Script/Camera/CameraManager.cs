@@ -3,6 +3,7 @@ using System.Collections;
 using DG.Tweening;
 using System.Collections.Generic;
 using UnityStandardAssets.ImageEffects;
+using UnityEngine.SceneManagement;
 
 public class CameraManager : MonoBehaviour {
 
@@ -293,10 +294,10 @@ public class CameraManager : MonoBehaviour {
 		AllCameraDoOrthoSize( EndFadeSize , EndFadeTime , EndFadeDelay , Ease.Linear );
 
 		VignetteAndChromaticAberration effect = GetComponentInChildren<VignetteAndChromaticAberration>();
-		if ( effect != null )
+		if ( effect != null && SceneManager.GetActiveScene().name != "begin" )
 		{
 			//TODO remove the hard code effect intensity
-			DOTween.To( () => effect.intensity , (x) => effect.intensity = x , 0.42f , EndFadeTime  ).SetEase(Ease.InOutCubic);
+			DOTween.To( () => effect.intensity , (x) => effect.intensity = x , 0.45f , EndFadeTime * 0.5f  ).SetEase(Ease.InOutCubic);
 		}
 	}
 
@@ -315,7 +316,9 @@ public class CameraManager : MonoBehaviour {
 	void Start()
 	{
 		LogicManager.LevelManager.GetLevelObject().transform.position = - initPos;
+
 		RecordLevelPosition();
+
 		SetupFrameSize();
 
 	}
@@ -618,7 +621,7 @@ public class CameraManager : MonoBehaviour {
 	/// <param name="e">E.</param>
 	void OnFingerMoveBack( FingerMotionEvent e )
 	{
-		if ( !m_enable ) return;
+		if ( !m_enable || LogicManager.isSetting  ) return;
 		if ( enabled && m_state == CameraState.Free )
 		{
 			// update the level position according to the finger movement
@@ -667,20 +670,22 @@ public class CameraManager : MonoBehaviour {
 
 	void OnPinchBack(  PinchGesture guesture )
 	{
-		if ( !m_enable ) return;
-
-		if ( guesture.Phase == ContinuousGesturePhase.Updated )
+		if ( !m_enable || LogicManager.isSetting  ) return;
+		if ( State == CameraState.Free )
 		{
-			float orthSize = GetCameraOrthoSize();
-			orthSize += guesture.Delta * PinchSense;
-			orthSize = Mathf.Clamp( orthSize , focusOtherSize , ZoomOutOtherSize );
-			AllCameraSetOrthoSize( orthSize );
-			if (  isZoomOutTutorial ) 
+			if ( guesture.Phase == ContinuousGesturePhase.Updated )
 			{
-				if ( guesture.Delta < 0 && GetCameraOrthoSize() > 6f )
+				float orthSize = GetCameraOrthoSize();
+				orthSize += guesture.Delta * PinchSense;
+				orthSize = Mathf.Clamp( orthSize , focusOtherSize , ZoomOutOtherSize );
+				AllCameraSetOrthoSize( orthSize );
+				if (  isZoomOutTutorial ) 
 				{
-					EventManager.Instance.PostEvent( EventDefine.ZoomOut  );
-					isZoomOutTutorial = false;
+					if ( guesture.Delta < 0 && GetCameraOrthoSize() > 6f )
+					{
+						EventManager.Instance.PostEvent( EventDefine.ZoomOut  );
+						isZoomOutTutorial = false;
+					}
 				}
 			}
 		}

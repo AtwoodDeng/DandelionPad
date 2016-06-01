@@ -14,12 +14,39 @@ public class WindAdv : MonoBehaviour {
 	int m_iterationTime = 0;
 
 	// *************  UI **************
-//	[SerializeField] SpriteRenderer windBackUI;
+	[SerializeField] SpriteRenderer windBackUI;
 //	[SerializeField] GameObject WindTestPrefab;
-//	[SerializeField] AnimationCurve ArrowScaleCurve;
+	[SerializeField] AnimationCurve ArrowScaleCurve;
 //	[SerializeField] int windTestNum = 100;
-//	SpriteRenderer[] UIarrows;
+	[SerializeField] GameObject windArrowPrefab;
+	[SerializeField] float UIDensity = 0.5f;
+	ArrowEntry[] UIarrows;
+	[SerializeField] float ArrowShowThreshod = 0.5f;
 //	WindTest[] WindTests;
+	  
+	struct ArrowEntry
+	{
+		public SpriteRenderer sprite;
+		public bool isIncluded;
+		public float value;
+	}
+
+	void OnEnable()
+	{
+		EventManager.Instance.RegistersEvent(EventDefine.SwitchWind,OnSwitchWind);
+		EventManager.Instance.RegistersEvent(EventDefine.LevelInitialized,OnLevelInit);
+	}
+
+	void OnDisable()
+	{
+		EventManager.Instance.UnregistersEvent(EventDefine.SwitchWind,OnSwitchWind);
+		EventManager.Instance.UnregistersEvent(EventDefine.LevelInitialized,OnLevelInit);
+	}
+
+	void OnLevelInit( Message msg )
+	{
+		StartUpdateWind();
+	}
 
 	void Update()
 	{
@@ -91,7 +118,7 @@ public class WindAdv : MonoBehaviour {
 	{
 		Init();
 		InitBuffers();
-
+		InitUI();
 		StartUpdateWind();
 	}
 
@@ -452,6 +479,10 @@ public class WindAdv : MonoBehaviour {
 
 
 ////////////////////////////////////////
+
+	/// <summary>
+	/// i j to world position
+	/// </summary>
 	Vector3 ij2Pos( int i , int j )
 	{
 		Vector3 res = Center;
@@ -460,6 +491,10 @@ public class WindAdv : MonoBehaviour {
 		return res;
 	}
 
+	/// <summary>
+	/// world position to i j 
+	/// </summary>
+	/// <param name="pos">Position.</param>
 	int Pos2ij( Vector3 pos )
 	{
 		int x = (int)((pos.x - Center.x ) / CellSize.x ) + width / 2;
@@ -591,6 +626,11 @@ public class WindAdv : MonoBehaviour {
 		return m_velocity[index];
 	}
 
+	/// <summary>
+	/// Check if the position is in the obsticle
+	/// </summary>
+	/// <returns><c>true</c>, if is not in the obstcle, <c>false</c> otherwise.</returns>
+	/// <param name="position">world position.</param>
 	public bool checkIsObsticle(Vector3 position )
 	{
 		if ( m_obstacle == null )
@@ -603,8 +643,248 @@ public class WindAdv : MonoBehaviour {
 
 // ************ UI *************
 
-//	public bool UIShowed = false;
+	public bool UIShowed = false;
+	int UIWidth;
+	int UIHeight;
+	void InitUI()
+	{
+		float rate = Densiity / UIDensity;
+		UIWidth = (int)( width * UIDensity );
+		UIHeight =  (int)( height * UIDensity );
+		UIarrows = new ArrowEntry[ UIWidth * UIHeight ];
+		for( int i = 0 ; i < UIWidth; ++ i )
+		{
+			for( int j = 0 ; j < UIHeight ; ++ j )
+			{
+				GameObject arrowObj = Instantiate( windArrowPrefab ) as GameObject;
+				arrowObj.transform.SetParent( transform , true );
+				arrowObj.transform.position = ij2Pos( (int)(i * rate) , (int)(j * rate) );
+				arrowObj.transform.localScale = Vector3.one;
+
+				SpriteRenderer sprite = arrowObj.GetComponent<SpriteRenderer>();
+				sprite.enabled = false;
+
+				UIarrows[ i * UIHeight + j ].sprite = sprite;
+			}
+		}
+
+		UIShowed = false;
+	}
+
+	float lastSwitchTime;
+	public void UISwitch()
+	{
+		if ( Time.time - lastSwitchTime < 2f  )
+			return;
+		lastSwitchTime = Time.time;
+
+		if ( UIShowed )
+			HideUI();
+		else 
+			ShowUI();
+	}
+
+
+	void OnSwitchWind( Message msg )
+	{
+		bool windActive = (bool)msg.GetMessage("WindActive");
+
+		if ( windActive ) 
+			ShowUI();
+		else
+			HideUI();
+	}
+
+	public void ShowUI()
+	{
+
+		EventManager.Instance.PostEvent(EventDefine.ShowWind);
+
+		{
+//			Color col = windBackUI.color;
+//			col.a = 0.5f;
+//			windBackUI.color = col;
+			windBackUI.enabled = false;
+		}
+
+//		for( int i = 0 ; i < UIWidth ; ++ i )
+//			for ( int j = 0 ; j < UIHeight ; ++ j )
+//			{
+//				SpriteRenderer arrow = UIarrows[i * UIHeight + j];
+//				{
+//					Color col = arrow.color;
+//					col.a = 1f;
+//					arrow.color = col;
+//				}
+//			}
+
+		UpdateArrow();
+
+		UIShowed = true;
+	}
+
+
+	public void HideUI()
+	{
+		EventManager.Instance.PostEvent(EventDefine.HideWind);
+
+		{
+//			Color col = windBackUI.color;
+//			col.a = 0f;
+//			windBackUI.color = col;
+			windBackUI.enabled = false;
+		}
+
+		for( int i = 0 ; i < UIWidth ; ++ i )
+			for ( int j = 0 ; j < UIHeight ; ++ j )
+			{
+				SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
+				arrow.enabled = false;
+//				{
+//					Color col = arrow.color;
+//					col.a = 0f;
+//					arrow.color = col;
+//				}
+			}
+		
+		UIShowed = false;
+	}
+
+	public void HideUIComplete()
+	{
+		windBackUI.enabled = false;
+		for( int i = 0 ; i < UIWidth ; ++ i )
+			for ( int j = 0 ; j < UIHeight ; ++ j )
+			{
+				SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
+				arrow.enabled = false;
+			}
+	}
+
+
+	void UpdateArrow()
+	{	
+		float rate = Densiity / UIDensity;
+
+		for( int i = 0 ; i < UIWidth ; ++ i )
+			for ( int j = 0 ; j < UIHeight ; ++ j )
+			{
+				UIarrows[i * UIHeight + j].sprite.transform.position = ij2Pos( (int)(i * rate) , (int)(j * rate) );
+				if ( checkIsObsticle( UIarrows[i * UIHeight + j].sprite.transform.position ))
+				{
+					UIarrows[i * UIHeight + j].isIncluded = true;
+					UIarrows[i * UIHeight + j].value = 1f;
+				}else
+				{
+					UIarrows[i * UIHeight + j].isIncluded = false;
+					UIarrows[i * UIHeight + j].value = 0f;
+				}
+			}
+
+		for ( int k = 1 ; k <= 1 ; ++ k )
+		for( int i = 0 ; i < UIWidth ; ++ i )
+			for ( int j = 0 ; j < UIHeight ; ++ j )
+				if ( UIarrows[i * UIHeight + j].isIncluded )
+					{
+						SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
+
+						Vector2 velocity = GetVelocity( arrow.transform.position );
+						Vector2 neighbouVel = GetNeighboughUIAverage( i , j , k );
+
+						if ( ( velocity - neighbouVel ).magnitude / velocity.magnitude < ArrowShowThreshod )
+						{
+							MergeNeighbough( i , j , k );
+						}
+					}
+
+		for( int i = 0 ; i < UIWidth ; ++ i )
+			for ( int j = 0 ; j < UIHeight ; ++ j )
+				if ( UIarrows[i * UIHeight + j].isIncluded )
+				{
+
+					SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
+					Vector2 velocity = GetVelocity( arrow.transform.position );
+					arrow.enabled = true;
+
+
+					float vel = ArrowScaleCurve.Evaluate( velocity.magnitude );
+					arrow.transform.localScale = new Vector3( 0.2f , vel , 1f ) 
+							* Mathf.Pow( UIarrows[i * UIHeight + j].value , 0.2f );
+					float angel = Mathf.Atan2( velocity.y , velocity.x ) * Mathf.Rad2Deg;
+					angel -= 90f ;
+					arrow.transform.eulerAngles = new Vector3( 0 , 0 , angel );
+				}
+				else
+				{
+					UIarrows[i * UIHeight + j].sprite.enabled = false;
+				}
+	
+//				SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
+//				arrow.transform.position = ij2Pos( (int)(i * rate) , (int)(j * rate) );
+//					
+//				Vector2 velocity = GetVelocity( arrow.transform.position );
+//				Vector2 neighbouVel = GetNeighboughUIAverage( i , j , 1 );
+//				if ( !checkIsObsticle( arrow.transform.position ) )
+//				{
+//					arrow.enabled = false;
+//				}else
+//				{
+//					arrow.enabled = true;
 //
+//					float vel = ArrowScaleCurve.Evaluate( velocity.magnitude );
+//					arrow.transform.localScale = new Vector3( 0.2f , vel , 1f );
+//					float angel = Mathf.Atan2( velocity.y , velocity.x ) * Mathf.Rad2Deg;
+//					angel -= 90f ;
+//					arrow.transform.eulerAngles = new Vector3( 0 , 0 , angel );
+//				}
+//			}
+
+	}
+
+	void MergeNeighbough( int i , int j , int radius)
+	{
+
+		for( int ii = i - radius ; ii <= i + radius ; ++ ii )
+		{
+			for ( int jj = j - radius ; jj < j + radius ; ++ jj )
+			{
+				if ( ii >= 0 && ii < UIWidth && jj >= 0 && jj < UIHeight )
+				{
+					if ( i != ii && j != jj && UIarrows[ ii * UIHeight + jj ].isIncluded)
+					{
+						UIarrows[ i * UIHeight + j ].value += UIarrows[ ii * UIHeight + jj ].value;
+						UIarrows[ ii * UIHeight + jj ].isIncluded = false;
+						UIarrows[ ii * UIHeight + jj ].value = 0;
+					}
+				}
+			}
+		}
+	}
+
+	Vector2 GetNeighboughUIAverage( int i , int j , int radius )
+	{
+		int count = 0 ;
+		Vector2 sum = Vector3.zero;
+		for( int ii = i - radius ; ii <= i + radius ; ++ ii )
+		{
+			for ( int jj = j - radius ; jj < j + radius ; ++ jj )
+			{
+				if ( ii >= 0 && ii < UIWidth && jj >= 0 && jj < UIHeight )
+				{
+					if ( i != ii && j != jj )
+					{
+						sum += GetVelocity( UIarrows[ ii * UIHeight + jj ].sprite.transform.position ) ;
+						count ++;
+					}
+				}
+			}
+		}
+		if ( count > 0 )
+			return sum / count;
+		
+		return sum;
+	}
+
 //	void InitUI()
 //	{
 //		windBackUI.transform.localScale = new Vector3( Size.x * 100f / windBackUI.sprite.texture.width 

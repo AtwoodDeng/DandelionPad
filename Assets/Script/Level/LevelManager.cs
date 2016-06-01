@@ -104,12 +104,14 @@ public class LevelManager : MonoBehaviour {
 	{
 		if ( wind != null ) 
 			return wind;
+		
 		GameObject windObj = GameObject.FindWithTag( "Wind");
 
 		if ( windObj != null )
 		{
 			wind = windObj.GetComponent<WindAdv>();
 		}
+
 		return wind;
 	}
 

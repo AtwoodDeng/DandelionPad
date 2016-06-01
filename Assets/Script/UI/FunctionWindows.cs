@@ -8,29 +8,37 @@ using DG.Tweening;
 public class FunctionWindows : MonoBehaviour {
 	
 	[SerializeField] AudioSource clickSound;
-//	[SerializeField] Button windButton;
+	[SerializeField] Button windButton;
 	[SerializeField] Button zoomButton;
 	[SerializeField] Button retryButton;
 
 	[SerializeField] GameObject setting;
 	[SerializeField] Slider musicVolumeSlider;
+	[SerializeField] float windViewInterval;
 
 	float zoomButtonTime;
-//	public void OnWindButton()
-//	{
-//		if ( Time.time -  windButtonTime < windViewInterval  )
-//			return;
-//		
-//		EventManager.Instance.PostEvent(EventDefine.SwitchWind);
-//		windButtonTime = Time.time;
-//
-//		if ( clickSound != null )
-//			clickSound.Play();
-//
-//		if ( windButton != null )
-//			windButton.interactable = false;
-//		StartCoroutine(ActiveButton(windViewInterval, windButton));
-//	}
+
+	float windButtonTime;
+	bool windTipsActive = false;
+	public void OnWindButton()
+	{
+		if ( Time.time -  windButtonTime < windViewInterval  )
+			return;
+
+		windTipsActive = !windTipsActive;
+
+		Message msg = new Message();
+		msg.AddMessage( "WindActive" , windTipsActive );
+		EventManager.Instance.PostEvent(EventDefine.SwitchWind , msg);
+		windButtonTime = Time.time;
+
+		if ( clickSound != null )
+			clickSound.Play();
+
+		if ( windButton != null )
+			windButton.interactable = false;
+		StartCoroutine(ActiveButton(windViewInterval, windButton));
+	}
 
 	void OnEnable()
 	{
@@ -91,6 +99,12 @@ public class FunctionWindows : MonoBehaviour {
 	void Start()
 	{
 		setting.SetActive(false);
+
+		foreach( string name in Global.inactiveWindLevel )
+			if ( name == SceneManager.GetActiveScene().name )
+			{
+				windButton.interactable = false;
+			}
 	}
 
 	bool isSetting = false;

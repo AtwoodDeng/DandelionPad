@@ -12,12 +12,14 @@ public class OnEvent : MonoBehaviour {
 
 	void OnEnable()
 	{
-		EventManager.Instance.RegistersEvent(senseEvent, Do);
+		if ( senseEvent != EventDefine.None )
+			EventManager.Instance.RegistersEvent(senseEvent, Do);
 	}
 
 	void OnDisable()
 	{
-		EventManager.Instance.UnregistersEvent(senseEvent, Do);
+		if ( senseEvent != EventDefine.None )
+			EventManager.Instance.UnregistersEvent(senseEvent, Do);
 	}
 
 	protected virtual void Do(Message msg )

@@ -35,6 +35,7 @@ public class SplineTrailRenderer : MonoBehaviour
 	public float maxLength = 50f;
 	public bool debugDrawSpline = false;
 	public AnimationCurve fadeOutCurve;
+	public float moveThreshod = 1f;
 
 	private AdvancedParameters advancedParameters = new AdvancedParameters(); 
 
@@ -164,20 +165,24 @@ public class SplineTrailRenderer : MonoBehaviour
 
 			if(meshDisposition == MeshDisposition.Continuous)
 			{
-				vertices[firstVertexIndex] = transform.InverseTransformPoint(lastPosition - origin + (lastBinormal * (rh * 0.5f)));
-				vertices[firstVertexIndex + 1] = transform.InverseTransformPoint(lastPosition - origin + (-lastBinormal * (rh * 0.5f)));
-        		vertices[firstVertexIndex + 2] = transform.InverseTransformPoint(position - origin + (binormal * (rh2 * 0.5f)));
-				vertices[firstVertexIndex + 3] = transform.InverseTransformPoint(position - origin + (-binormal * (rh2 * 0.5f)));
-            
-				uv[firstVertexIndex] =  new Vector2(lastDistance/height, 1);  
-				uv[firstVertexIndex + 1] = new Vector2(lastDistance/height, 0);
-        		uv[firstVertexIndex + 2] = new Vector2(distance/height, 1); 
-				uv[firstVertexIndex + 3] = new Vector2(distance/height, 0);
+				if ( firstVertexIndex + 3 < vertices.Length && firstVertexIndex + 3 < uv.Length )
+				{
+					vertices[firstVertexIndex] = transform.InverseTransformPoint(lastPosition - origin + (lastBinormal * (rh * 0.5f)));
+					vertices[firstVertexIndex + 1] = transform.InverseTransformPoint(lastPosition - origin + (-lastBinormal * (rh * 0.5f)));
+	        		vertices[firstVertexIndex + 2] = transform.InverseTransformPoint(position - origin + (binormal * (rh2 * 0.5f)));
+					vertices[firstVertexIndex + 3] = transform.InverseTransformPoint(position - origin + (-binormal * (rh2 * 0.5f)));
+	            
+					uv[firstVertexIndex] =  new Vector2(lastDistance/height, 1);  
+					uv[firstVertexIndex + 1] = new Vector2(lastDistance/height, 0);
+	        		uv[firstVertexIndex + 2] = new Vector2(distance/height, 1); 
+					uv[firstVertexIndex + 3] = new Vector2(distance/height, 0);
+				}
 			}
 			else
 			{
 				Vector3 pos = lastPosition + (lastTangent * width * -0.5f) - origin;
-
+				if ( firstVertexIndex + 3 < vertices.Length && firstVertexIndex + 3 < uv.Length )
+				{
 				vertices[firstVertexIndex] = transform.InverseTransformPoint(pos + (lastBinormal * (rh * 0.5f)));
 			    vertices[firstVertexIndex + 1] = transform.InverseTransformPoint(pos + (-lastBinormal * (rh * 0.5f)));
         	    vertices[firstVertexIndex + 2] = transform.InverseTransformPoint(pos + (lastTangent * width) + (lastBinormal * (rh * 0.5f)));
@@ -187,8 +192,10 @@ public class SplineTrailRenderer : MonoBehaviour
 			    uv[firstVertexIndex + 1] = new Vector2(0, 0);
         	    uv[firstVertexIndex + 2] = new Vector2(1, 1); 
 			    uv[firstVertexIndex + 3] = new Vector2(1, 0);
+				}
 			}
-
+			if ( firstVertexIndex + 3 < vertices.Length &&  firstVertexIndex + 3 < colors.Length)
+			{
 			triangles[firstTriIndex] = firstVertexIndex;
 			triangles[firstTriIndex + 1] = firstVertexIndex + 1;
 			triangles[firstTriIndex + 2] = firstVertexIndex + 2;
@@ -200,13 +207,17 @@ public class SplineTrailRenderer : MonoBehaviour
 			colors[firstVertexIndex + 1] = vertexColor;
         	colors[firstVertexIndex + 2] = vertexColor;
 			colors[firstVertexIndex + 3] = vertexColor;
+			}
 
 			if(fadeType == FadeType.Alpha || fadeType == FadeType.Both)
 			{
+				if (firstVertexIndex + 3 < colors.Length)
+				{
 				colors[firstVertexIndex].a *= h;
 				colors[firstVertexIndex + 1].a *= h;
         		colors[firstVertexIndex + 2].a *= h2;
 				colors[firstVertexIndex + 3].a *= h2;
+				}
 			}
 
 			lastPosition = position;
@@ -344,9 +355,21 @@ public class SplineTrailRenderer : MonoBehaviour
 		return Mathf.Min(ha, hb);
 	}
 
+
+	public void UpdatePosition( Vector3 pos )
+	{
+		pos.z = 0;
+
+		float distance = ( pos - transform.position ).magnitude;
+
+		if ( distance > moveThreshod )
+			transform.position = pos;
+	}
+
 	public void FadeOut( float time )
 	{
-		StartCoroutine( FadeOutCor(time) );
+		if ( gameObject.activeSelf )	
+			StartCoroutine( FadeOutCor(time) );
 	}
 
 	IEnumerator FadeOutCor( float time)

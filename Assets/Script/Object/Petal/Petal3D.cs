@@ -187,6 +187,7 @@ public class Petal3D : Petal {
 			}
 		}else if ( blowType.Equals( BlowType.Final ))
 		{
+			SetColliderTrigger( false );
 			petalModel.transform.DOScale( 0 , finalFadeTime / 2f ).SetDelay( Random.Range( 0 , finalFadeTime / 2f ) ).OnComplete(SelfDestory);
 		}
         else if (blowType.Equals(BlowType.FlyAway))

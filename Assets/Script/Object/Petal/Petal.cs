@@ -87,7 +87,9 @@ public class Petal : MonoBehaviour  {
 		flowerObj.transform.localScale = land.GetGrowScale();
 
 		Flower flowerCom = flowerObj.GetComponent<Flower>();
-		flowerObj.transform.position = position - flowerCom.root.localPosition;
+		Vector3 growPos = position - flowerCom.root.localPosition;
+		growPos.z = land.transform.position.z;
+		flowerObj.transform.position = growPos ;
 
 		flowerCom.growParameter.normal = normal;
 		if ( LogicManager.LevelManager.CheckLevelFinishWithoutLand( land ) )
@@ -269,7 +271,9 @@ public class Petal : MonoBehaviour  {
 
 		foreach( Flower f in land.flowers )
 		{
-			if ( (f.transform.position - position).magnitude < minGrowDistance )
+			Vector3 deltaPos = f.transform.position - position;
+			deltaPos.z = 0;
+			if ( deltaPos.magnitude < minGrowDistance )
 				return false;
 		}
 		Debug.Log("Check 3");

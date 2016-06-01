@@ -20,14 +20,14 @@ public class WindTestGenerator : MonoBehaviour {
 
 	void OnEnable()
 	{
-		EventManager.Instance.RegistersEvent(EventDefine.SwitchWind , OnSwithWind);
+//		EventManager.Instance.RegistersEvent(EventDefine.SwitchWind , OnSwithWind);
 		EventManager.Instance.RegistersEvent(showEvent , OnShowEvent);
 		EventManager.Instance.RegistersEvent(EventDefine.EndLevel , OnEndLevel);
 	}
 
 	void OnDisable()
 	{
-		EventManager.Instance.UnregistersEvent(EventDefine.SwitchWind , OnSwithWind);
+//		EventManager.Instance.UnregistersEvent(EventDefine.SwitchWind , OnSwithWind);
 		EventManager.Instance.UnregistersEvent(showEvent , OnShowEvent);
 		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel , OnEndLevel);
 	}
@@ -89,7 +89,6 @@ public class WindTestGenerator : MonoBehaviour {
 			WindTests[i].parent = this;
 		}
 
-
 		UIShowed = false;
 	}
 
@@ -123,7 +122,7 @@ public class WindTestGenerator : MonoBehaviour {
 //		windBackUI.DOFade( 0.5f , 2f ).SetEase(Ease.OutExpo);
 		InitWindTestPos();
 
-		EventManager.Instance.PostEvent(EventDefine.ShowWind);
+//		EventManager.Instance.PostEvent(EventDefine.ShowWind);
 
 		UIShowed = true;
 	}
@@ -136,7 +135,7 @@ public class WindTestGenerator : MonoBehaviour {
 			WindTests[i].Exit( false );
 		}
 
-		EventManager.Instance.PostEvent(EventDefine.HideWind);
+//		EventManager.Instance.PostEvent(EventDefine.HideWind);
 
 		UIShowed = false;
 	}

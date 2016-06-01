@@ -168,6 +168,7 @@ public class LogicManager : MonoBehaviour {
 		EventManager.Instance.RegistersEvent(EventDefine.GrowFirstFlower,OnGrowFirstFlower);
 		EventManager.Instance.RegistersEvent(EventDefine.EndLevel,OnEndLevel);
 		EventManager.Instance.RegistersEvent(EventDefine.SwitchSetting,OnSwitchSetting);
+		EventManager.Instance.RegistersEvent(EventDefine.SwitchWind,OnSwitchWind);
 
 	}
 
@@ -183,12 +184,11 @@ public class LogicManager : MonoBehaviour {
 		EventManager.Instance.UnregistersEvent(EventDefine.GrowFirstFlower,OnGrowFirstFlower);
 		EventManager.Instance.UnregistersEvent(EventDefine.EndLevel,OnEndLevel);
 		EventManager.Instance.UnregistersEvent(EventDefine.SwitchSetting,OnSwitchSetting);
+		EventManager.Instance.UnregistersEvent(EventDefine.SwitchWind,OnSwitchWind);
 	}
 
-	void Start()
+	void Awake()
 	{
-		if ( LevelManager != null )
-			m_swipeTime = LevelManager.GetBlowTime();
 		GameObject bgm = GameObject.FindGameObjectWithTag("BGM");
 		if ( bgm == null )
 		{
@@ -204,8 +204,32 @@ public class LogicManager : MonoBehaviour {
 			GameObject Trans = Instantiate( Resources.Load(Global.TRANS_PATH) ) as GameObject;
 			Trans.transform.position = Vector3.zero;
 		}
+
+	}
+
+	void Start()
+	{
+		if ( LevelManager != null )
+			m_swipeTime = LevelManager.GetBlowTime();
+		
 		EventManager.Instance.PostEvent( EventDefine.BeginLevel );
 
+	}
+
+	/// <summary>
+	/// Switch the wind UI mode of the wind
+	/// </summary>
+	/// <param name="msg"> </param>
+	void OnSwitchWind( Message msg )
+	{
+		m_isSetting = (bool)msg.GetMessage("WindActive");
+
+		IPhysTimeRate = isSetting? 0 : 1;
+
+		if ( isSetting ) 
+			DOTween.PauseAll();
+		else
+			DOTween.PlayAll();
 	}
 
 	void OnSwitchSetting( Message msg )
