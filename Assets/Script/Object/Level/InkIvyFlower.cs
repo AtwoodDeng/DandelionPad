@@ -9,6 +9,9 @@ public class InkIvyFlower : MonoBehaviour {
 	[SerializeField] AnimationCurve growCurve;
 	[SerializeField] float growChance = 0.5f;
 	[SerializeField] float growTime = 2f;
+	[SerializeField] AudioSource sound;
+
+	static int number = 0;
 
 	float initScale;
 	float initAlpha;
@@ -21,11 +24,15 @@ public class InkIvyFlower : MonoBehaviour {
 		spriteRender.transform.localRotation = Quaternion.Euler( new Vector3( 0 , 0 , Random.value * 360f ));
 		collider.enabled =false;
 		spriteRender.color = new Color( Random.Range( 133f , 200f ) / 255f  ,  0.9f  , 0.36f );
+		if ( sound == null )
+			sound = GetComponent<AudioSource>();
+		if ( sound != null )
+			sound.playOnAwake = false;
 	}
 
 	void OnTriggerEnter(Collider col)
 	{
-		Debug.Log( name + "Enter " + col.name );
+//		Debug.Log( name + "Enter " + col.name );
 		if ( col.GetComponent<Petal>() != null )
 		{
 			if ( col.GetComponent<Petal>().state == PetalState.Fly && Random.Range( 0 , 1f ) < growChance && !isGrowed )
@@ -37,7 +44,14 @@ public class InkIvyFlower : MonoBehaviour {
 
 	IEnumerator Grow()
 	{
-		Debug.Log("Grow");
+		number ++;
+
+		if ( sound != null )
+		{
+			sound.pitch = 0.7f + number * 0.05f;
+			sound.Play();
+		}
+
 		collider.enabled = false;
 		float timer = 0;
 		spriteRender.DOFade( initAlpha , growTime * 0.25f );

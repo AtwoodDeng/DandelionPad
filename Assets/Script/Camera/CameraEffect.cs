@@ -160,7 +160,7 @@ public class CameraEffect : MonoBehaviour {
 		{
 			Vector3 pos = Camera.main.ScreenToWorldPoint( ScreenPos );
 			pos.z = 0;
-			str.UpdatePosition( pos );
+			str.UpdatePosition( pos , Camera.main.orthographicSize);
 		}
 	
 	}

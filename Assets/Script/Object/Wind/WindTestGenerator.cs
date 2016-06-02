@@ -102,7 +102,8 @@ public class WindTestGenerator : MonoBehaviour {
 
 	virtual public void ResetWindTest( WindTest windTest )
 	{
-		windTest.EnterRandomPosByWind();
+		if ( UIShowed )
+			windTest.EnterRandomPosByWind();
 	}
 
 	float lastSwitchTime = -Mathf.Infinity;
@@ -119,12 +120,13 @@ public class WindTestGenerator : MonoBehaviour {
 	}
 	 public void ShowUI()
 	{
+		UIShowed = true;
+
 //		windBackUI.DOFade( 0.5f , 2f ).SetEase(Ease.OutExpo);
 		InitWindTestPos();
 
 //		EventManager.Instance.PostEvent(EventDefine.ShowWind);
 
-		UIShowed = true;
 	}
 
 	 public void HideUI()

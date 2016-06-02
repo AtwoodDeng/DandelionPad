@@ -19,9 +19,9 @@ public class WindTest : MonoBehaviour , WindSensable {
 
 	public enum State
 	{
-		Enter,
-		Move,
-		Exit,
+		Enter, // enter the wind 
+		Move,  // in the wind and update every frame
+		Exit,  // exit the wind, but still moving 
 		Invisible
 	}
 	public State state = State.Invisible;
@@ -61,7 +61,7 @@ public class WindTest : MonoBehaviour , WindSensable {
 
 	public void Update()
 	{
-		if( state == State.Move )
+		if( state == State.Move || state == State.Exit )
 			UpdateWindTest();
 	}
 

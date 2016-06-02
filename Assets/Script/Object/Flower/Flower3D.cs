@@ -363,7 +363,7 @@ public class Flower3D : Flower , WindSensable {
 			if ( blowSound != null )
 			{
 				blowSound.Play();
-				blowSound.volume = velocity.magnitude / 15f ;
+				blowSound.volume = velocity.magnitude * 0.13f ;
 			}
 			base.Blow (velocity);
 

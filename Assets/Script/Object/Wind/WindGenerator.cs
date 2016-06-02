@@ -18,7 +18,7 @@ public class WindGenerator : MonoBehaviour {
 		if ( sound == null )
 			sound = GetComponent<AudioSource>();
 		if ( sound != null )
-			sound.volume = Mathf.Clamp( strength * 0.03f , 0 , 0.33f );
+			sound.volume = Mathf.Clamp( strength * 0.1f , 0 , 1f );
 	}
 	public Vector3 GetDirection()
 	{

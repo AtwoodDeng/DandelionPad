@@ -275,7 +275,6 @@ public class LogicManager : MonoBehaviour {
 		}
 	}
 
-
 	void AllBlackEndLevel( Message msg )
 	{
 		DOTween.KillAll();
@@ -287,7 +286,7 @@ public class LogicManager : MonoBehaviour {
 	{
 		AO.allowSceneActivation = false;
 
-		float timer = 5f; 
+		float timer = 0f; 
 		while( ! AO.isDone && timer > 0 )
 		{	
 			timer -= Time.deltaTime;

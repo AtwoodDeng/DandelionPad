@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class Global {
 
@@ -100,6 +101,8 @@ public class Global {
 	static public string TRANS_PATH = "Prefab/System/Transform";
 	static public string INKSPREAD_PATH = "Prefab/System/InkSpread";
 
+	static public string GRASS_CRASH_SOUND_PATH = "Sound/Grass/GrassCrash2";
+
 	static public Vector3 CAMERA_INIT_POSITION = new Vector3( 0  , 0 , -10f);
 
 	static float m_pixel2Unit = -1f;
@@ -133,6 +136,10 @@ public class Global {
 	}
 
 	static public Color DefaultTrailColor = new Color( 0.5f , 0.5f , 0.5f );
+
+	static public Dictionary<string,string> LoadImageDict = new Dictionary<string, string>
+	{ {"begin" , "teach" },
+	};
 }
 
 [System.SerializableAttribute]

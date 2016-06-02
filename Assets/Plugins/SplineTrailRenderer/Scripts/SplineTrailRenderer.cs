@@ -25,6 +25,7 @@ public class SplineTrailRenderer : MonoBehaviour
 	public float emissionDistance = 1f;
 	public float height = 1f;
 	public float width = 0.2f;
+	public float initHeight = 0.2f;
 	public Color vertexColor = Color.white;
 	public Vector3 normal = new Vector3(0, 0, 1);
 	public MeshDisposition meshDisposition = MeshDisposition.Continuous;
@@ -254,6 +255,7 @@ public class SplineTrailRenderer : MonoBehaviour
 	private void Init()
 	{
 		origin = Vector3.zero;//transform.position;
+		height = initHeight;
 
 		mesh = GetComponent<MeshFilter>().mesh;
 
@@ -356,7 +358,7 @@ public class SplineTrailRenderer : MonoBehaviour
 	}
 
 
-	public void UpdatePosition( Vector3 pos )
+	public void UpdatePosition( Vector3 pos , float CameraSize )
 	{
 		pos.z = 0;
 
@@ -364,6 +366,8 @@ public class SplineTrailRenderer : MonoBehaviour
 
 		if ( distance > moveThreshod )
 			transform.position = pos;
+
+		height = initHeight * Mathf.Pow( CameraSize / 7f , 1f );
 	}
 
 	public void FadeOut( float time )

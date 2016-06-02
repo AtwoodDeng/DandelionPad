@@ -11,6 +11,7 @@ public class InkSpread : MonoBehaviour {
 //	[SerializeField] AnimationCurve sizeCurve;
 	float initAlpha;
 
+
 	static GameObject m_prefab;
 	static GameObject Prefab
 	{
@@ -20,14 +21,14 @@ public class InkSpread : MonoBehaviour {
 			return m_prefab;
 		}
 	}
-	static public void CreateInkSpreadHitLand( GameObject _prefab, Vector3 pos , Transform parent , int number , float scale )
+	static public void CreateInkSpreadHitLands( GameObject _prefab, Vector3 pos , Transform parent , int number , float scale )
 	{
 		if ( _prefab == null )
 			_prefab = Prefab;
 		
 		for( int i = 0 ; i < number; ++ i )
 		{
-			GameObject ink = Instantiate( Prefab ) as GameObject;
+			GameObject ink = Instantiate( _prefab ) as GameObject;
 			ink.transform.position = pos + Global.V2ToV3( Global.GetRandomDirection()) * Random.Range( 0 , scale * 5f );
 			ink.transform.localScale = Vector3.one * scale * Random.Range( 0.5f , 2f );
 			ink.transform.SetParent( parent , true);
@@ -35,6 +36,36 @@ public class InkSpread : MonoBehaviour {
 
 			InkSpread inkCom = ink.GetComponent<InkSpread>();
 			inkCom.sprite.SetSprite( "InkSpread" + Random.Range( 1 , 4 ).ToString());
+
+			inkCom.Fade();
+
+			if ( i == 0 )
+			{
+				AudioSource audio = ink.AddComponent<AudioSource>();
+				audio.clip =  (AudioClip) Resources.Load(Global.GRASS_CRASH_SOUND_PATH );
+				audio.loop =false;
+				audio.volume = 0.6f;
+				audio.Play();
+			}
+		}
+	}
+
+	static public void CreateInkSpread( GameObject _prefab, Vector3 pos , Transform parent , int number , float scale )
+	{
+		for( int i = 0 ; i < number; ++ i )
+		{
+			GameObject ink = Instantiate( _prefab ) as GameObject;
+			Vector3 m_pos = pos + Global.V2ToV3( Global.GetRandomDirection()) * Random.Range( 0 , scale * 5f );
+			if ( parent != null )
+				m_pos.z = parent.position.z;
+			else
+				m_pos .z = 0;
+			ink.transform.position = m_pos;
+			ink.transform.localScale = Vector3.one * scale * Random.Range( 0.5f , 2f );
+			ink.transform.SetParent( parent , true);
+			ink.transform.Rotate( Vector3.forward , Random.Range( 0 , 360f ));
+
+			InkSpread inkCom = ink.GetComponent<InkSpread>();
 
 			inkCom.Fade();
 		}

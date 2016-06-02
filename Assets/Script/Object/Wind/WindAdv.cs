@@ -670,41 +670,80 @@ public class WindAdv : MonoBehaviour {
 		UIShowed = false;
 	}
 
-	float lastSwitchTime;
-	public void UISwitch()
-	{
-		if ( Time.time - lastSwitchTime < 2f  )
-			return;
-		lastSwitchTime = Time.time;
+//	float lastSwitchTime;
+//	public void UISwitch()
+//	{
+//		if ( Time.time - lastSwitchTime < 2f  )
+//			return;
+//		lastSwitchTime = Time.time;
+//
+//		if ( UIShowed )
+//			HideUI();
+//		else 
+//			ShowUI();
+//	}
 
-		if ( UIShowed )
-			HideUI();
-		else 
-			ShowUI();
-	}
-
-
+//
 	void OnSwitchWind( Message msg )
 	{
 		bool windActive = (bool)msg.GetMessage("WindActive");
+		float time = (float)msg.GetMessage("time");
 
 		if ( windActive ) 
-			ShowUI();
+			ShowUI( time );
 		else
-			HideUI();
+			HideUI( time );
 	}
 
-	public void ShowUI()
+	public void ShowUI( float time )
 	{
+
+		windBackUI.enabled = true;
+		UpdateArrow();
+
+		UIShowed = true;
 
 		EventManager.Instance.PostEvent(EventDefine.ShowWind);
 
+		StartCoroutine( ShowUICor( time ) );
+	}
+
+	IEnumerator ShowUICor( float time )
+	{
+
+		float timer = 0 ; 
+		while ( timer < time )
 		{
+			float process = timer / time;
+			timer += Time.deltaTime;
+
+			{
+				Color col = windBackUI.color;
+				col.a = 0.5f * process;
+				windBackUI.color = col;
+			}
+
+			for( int i = 0 ; i < UIWidth ; ++ i )
+				for ( int j = 0 ; j < UIHeight ; ++ j )
+				{
+					SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
+					{
+						Color col = arrow.color;
+						float P_ij = 1f * ( i + j ) / ( UIWidth + UIHeight - 2 );
+						col.a = Mathf.Clamp01( process * 2f - P_ij ); 
+						arrow.color = col;
+					}
+				}
+			yield return null;
+
+		}
+
+//		{
 //			Color col = windBackUI.color;
 //			col.a = 0.5f;
 //			windBackUI.color = col;
-			windBackUI.enabled = false;
-		}
+//			windBackUI.enabled = false;
+//		}
 
 //		for( int i = 0 ; i < UIWidth ; ++ i )
 //			for ( int j = 0 ; j < UIHeight ; ++ j )
@@ -717,36 +756,69 @@ public class WindAdv : MonoBehaviour {
 //				}
 //			}
 
-		UpdateArrow();
-
-		UIShowed = true;
+//		UpdateArrow();
 	}
 
 
-	public void HideUI()
+	public void HideUI( float time )
 	{
 		EventManager.Instance.PostEvent(EventDefine.HideWind);
 
+		StartCoroutine( HideUICor( time ));
+	}
+
+	IEnumerator HideUICor ( float time )
+	{
+		float timer = 0 ; 
+
+		UIShowed = false;
+
+		while ( timer < time )
 		{
+			float process = timer / time;
+			timer += Time.deltaTime;
+
+			{
+				Color col = windBackUI.color;
+				col.a = 0.5f * ( 1f - process);
+				windBackUI.color = col;
+			}
+
+			for( int i = 0 ; i < UIWidth ; ++ i )
+				for ( int j = 0 ; j < UIHeight ; ++ j )
+				{
+					SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
+					{
+						Color col = arrow.color;
+						float P_ij = 1f * ( i + j ) / ( UIWidth + UIHeight - 2 );
+						col.a = 1f - Mathf.Clamp01( process * 2f - P_ij ); 
+						arrow.color = col;
+					}
+				}
+			yield return null;
+
+		}
+		HideUIComplete();
+
+		
+//		{
 //			Color col = windBackUI.color;
 //			col.a = 0f;
 //			windBackUI.color = col;
-			windBackUI.enabled = false;
-		}
+//			windBackUI.enabled = false;
+//		}
 
-		for( int i = 0 ; i < UIWidth ; ++ i )
-			for ( int j = 0 ; j < UIHeight ; ++ j )
-			{
-				SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
-				arrow.enabled = false;
+//		for( int i = 0 ; i < UIWidth ; ++ i )
+//			for ( int j = 0 ; j < UIHeight ; ++ j )
+//			{
+//				SpriteRenderer arrow = UIarrows[i * UIHeight + j].sprite;
+//				arrow.enabled = false;
 //				{
 //					Color col = arrow.color;
 //					col.a = 0f;
 //					arrow.color = col;
 //				}
-			}
-		
-		UIShowed = false;
+//			}
 	}
 
 	public void HideUIComplete()

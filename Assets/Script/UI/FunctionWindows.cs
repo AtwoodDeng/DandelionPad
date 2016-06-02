@@ -9,6 +9,7 @@ using DG.Tweening;
 public class FunctionWindows : MonoBehaviour {
 	
 	[SerializeField] AudioSource clickSound;
+	[SerializeField] AudioSource windSound;
 	[SerializeField] Button windButton;
 	[SerializeField] Button zoomButton;
 	[SerializeField] Button retryButton;
@@ -17,7 +18,7 @@ public class FunctionWindows : MonoBehaviour {
 
 	[SerializeField] GameObject setting;
 	[SerializeField] Slider musicVolumeSlider;
-	[SerializeField] float windViewInterval;
+	[SerializeField] float windSwitchTime = 1f;
 
 	float zoomButtonTime;
 
@@ -25,13 +26,14 @@ public class FunctionWindows : MonoBehaviour {
 	bool windTipsActive = false;
 	public void OnWindButton()
 	{
-		if ( Time.time -  windButtonTime < windViewInterval  )
+		if ( Time.time -  windButtonTime < windSwitchTime  )
 			return;
 
 		windTipsActive = !windTipsActive;
 
 		Message msg = new Message();
 		msg.AddMessage( "WindActive" , windTipsActive );
+		msg.AddMessage( "time" , windSwitchTime );
 		EventManager.Instance.PostEvent(EventDefine.SwitchWind , msg);
 		windButtonTime = Time.time;
 
@@ -40,7 +42,11 @@ public class FunctionWindows : MonoBehaviour {
 
 		if ( windButton != null )
 			windButton.interactable = false;
-		StartCoroutine(ActiveButton(windViewInterval, windButton));
+
+		if ( windSound != null )
+			windSound.Play();
+		
+		StartCoroutine(ActiveButton(windSwitchTime, windButton));
 	}
 
 	bool canMove = false;
