@@ -75,7 +75,7 @@ public class InkSpread : MonoBehaviour {
 	{
 		float scaleSense = 0.05f;
 		float distanSense = 0.03f;
-		float flyDistance = 0.008f;
+		float flyDistance = 0.08f;
 		float fadeDelay = 0.05f;
 		float initScaleTime = 0.18f;
 		float spreadTime = 20f;
@@ -103,7 +103,7 @@ public class InkSpread : MonoBehaviour {
 
 				pos.z = 2f;
 				ink.transform.SetParent( parent );
-				ink.transform.position = pos + Global.V2ToV3( velocity ) * mFlyDistance 
+				ink.transform.position = pos + Global.V2ToV3( velocity.normalized ) * Mathf.Sqrt( velocity.magnitude + 10f ) * mFlyDistance 
 					+ Global.V2ToV3( Global.GetRandomDirection() * Random.Range( 0 , mDistanSense));
 				float toScale = ( 0.15f + Mathf.Sqrt( velocity.magnitude ) * mScaleSense ) * Random.Range( 0.8f , 1.2f ) ;
 				ink.transform.localScale = Vector3.zero ;

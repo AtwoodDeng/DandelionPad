@@ -308,7 +308,7 @@ public class LogicManager : MonoBehaviour {
 		{
 			EventManager.Instance.PostEvent( EventDefine.EndLevel );
 			checkEnd = true;
-//			Debug.Log("End level");
+			Debug.Log("End level");
 		}
 
 		if ( m_levelManager.CheckLevelDead() && !m_isDead && m_isBegin && !m_isEnded )

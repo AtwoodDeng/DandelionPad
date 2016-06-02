@@ -70,6 +70,7 @@ public class CameraManager : MonoBehaviour {
 				tem = LogicManager.LevelManager.GetLevelObject().transform.position - initPos;
 			else
 				tem = levelPosStartFollow - initPos;
+			
 			tem.z = 0;
 			return  tem;
 		}
@@ -188,9 +189,12 @@ public class CameraManager : MonoBehaviour {
 		if ( ( m_state == CameraState.Free || m_state == CameraState.Disable ) && StartFollowTime == Mathf.Infinity )
 		{
 			Debug.Log("Camera Begin Follow " );
-			RecordLevelPosition();
-			StartFollowTime = Time.time;
+			if ( m_state == CameraState.Free )
+				RecordLevelPosition();
+			
 			m_state = CameraState.FollowTrans;
+
+			StartFollowTime = Time.time;
 
 			VignetteAndChromaticAberration effect = GetComponentInChildren<VignetteAndChromaticAberration>();
 			if ( effect != null )
@@ -279,12 +283,18 @@ public class CameraManager : MonoBehaviour {
 	void OnEndLevel(Message msg )
 	{
 		if ( !m_enable ) return;
-//		RecordLevelPosition();
+
+		if ( m_state == CameraState.Free )
+			RecordLevelPosition();
+		
+		m_state = CameraState.Final;
+
 		//fade this camera
 		Sequence seq = DOTween.Sequence();
 		seq.AppendInterval( EndFadeDelay );
-		seq.AppendCallback( EndLevelDelayAction );
-		seq.Append( LogicManager.LevelManager.GetLevelObject().transform.DOMove( Vector3.zero , EndFadeTime ));
+//		seq.AppendCallback( EndLevelDelayAction );
+//		seq.Append( LogicManager.LevelManager.GetLevelObject().transform.DOMove( Vector3.zero , EndFadeTime ));
+
 		if ( watchFinalFlower != null )
 		{
 			StopCoroutine( watchFinalFlower);
@@ -301,14 +311,14 @@ public class CameraManager : MonoBehaviour {
 		}
 
 		// close the UICamera
-		Camera[] childCameras = GetComponentsInChildren<Camera>();
-		string[] UILayer = {"UI"};
-		foreach( Camera c in childCameras )
-		{
-			
-			if ( (c.cullingMask & LayerMask.GetMask(UILayer)) > 0 )
-				c.enabled = false;
-		}
+//		Camera[] childCameras = GetComponentsInChildren<Camera>();
+//		string[] UILayer = {"UI"};
+//		foreach( Camera c in childCameras )
+//		{
+//			
+//			if ( (c.cullingMask & LayerMask.GetMask(UILayer)) > 0 )
+//				c.enabled = false;
+//		}
 	}
 
 	void EndLevelDelayAction()
@@ -381,7 +391,7 @@ public class CameraManager : MonoBehaviour {
 			}
 
 			// if the follow game object is destoried, then stop
-			if ( !isFollowAvailable() )
+			if ( !ifFollowAvailable() )
 			{
 				CameraStopFollow();
 				Debug.Log("Stop 3");
@@ -395,7 +405,7 @@ public class CameraManager : MonoBehaviour {
 			float orthSizeRate = 0.005f;
 			// if the follow not equal to null
 			// then the camera should follow the object
-			if ( isFollowAvailable() ){
+			if ( ifFollowAvailable() ){
 				toPos = GetFollow();
 				// update the orth size
 				toOrthoSize = GetFollowMaxDistance() * 0.6f + focusOtherSize;
@@ -421,7 +431,6 @@ public class CameraManager : MonoBehaviour {
 			UpdatePositionToward( toPos , rate );
 
 			AllCameraSetOrthoSize( Mathf.Lerp( GetCameraOrthoSize() , toOrthoSize , orthSizeRate ) );
-
 		}
 	}
 
@@ -531,7 +540,7 @@ public class CameraManager : MonoBehaviour {
 
 	}
 
-	bool isFollowAvailable()
+	bool ifFollowAvailable()
 	{
 		foreach( Petal p in focusPetals )
 		{

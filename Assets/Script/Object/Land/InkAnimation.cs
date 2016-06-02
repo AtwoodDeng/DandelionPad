@@ -136,7 +136,7 @@ public class InkAnimation : MonoBehaviour {
 	{
 		float timer = 0;
 
-		while ( timer < para.growTime )
+		while ( timer < para.growTime + para.delay.max )
 		{
 			timer += Time.deltaTime;	
 			for ( int i = 0 ; i < para.dropNum ; ++ i )

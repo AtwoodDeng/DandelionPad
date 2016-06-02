@@ -279,19 +279,21 @@ public class Land : MonoBehaviour {
 	{
 		timer += Time.deltaTime;
 		if ( !isGrowFinished )
-		for ( int i = 0 ; i < effectParameter.dropNum ; ++ i )
 		{
-			if ( timer > coverInfos[i].delay )
+			for ( int i = 0 ; i < effectParameter.dropNum ; ++ i )
 			{
-				coverInfos[i].process += Time.deltaTime / effectParameter.growTime;
-				coverInfos[i].tem.z = coverInfos[i].to.z / effectParameter.sizeCurve.Evaluate( coverInfos[i].process );
-				coverInfos[i].tem.w = coverInfos[i].to.w / effectParameter.sizeCurve.Evaluate( coverInfos[i].process );
+				if ( timer > coverInfos[i].delay )
+				{
+					coverInfos[i].process += Time.deltaTime / effectParameter.growTime;
+					coverInfos[i].tem.z = coverInfos[i].to.z / effectParameter.sizeCurve.Evaluate( coverInfos[i].process );
+					coverInfos[i].tem.w = coverInfos[i].to.w / effectParameter.sizeCurve.Evaluate( coverInfos[i].process );
 
-				m_material.SetVector( "_CoverRec" + i.ToString() , coverInfos[i].tem );
+					m_material.SetVector( "_CoverRec" + i.ToString() , coverInfos[i].tem );
+				}
 			}
 		}
 
-		if ( timer > effectParameter.growTime && !isGrowFinished )
+		if ( timer > ( effectParameter.growTime + effectParameter.delay.max ) && !isGrowFinished )
 		{
 			FinishGrow();
 		}

@@ -202,6 +202,7 @@ public enum CameraState
 	Disable,
 	Free,
 	FollowTrans,
+	Final,
 }
 
 [System.Serializable]
