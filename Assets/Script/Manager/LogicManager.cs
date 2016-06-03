@@ -166,6 +166,7 @@ public class LogicManager : MonoBehaviour {
 		}
 	}
 
+	int toLevel = -1;
 
 	void OnEnable()
 	{
@@ -260,6 +261,10 @@ public class LogicManager : MonoBehaviour {
 	void OnEndLevel( Message msg )
 	{
 		m_isEnded = true;
+		if ( msg.ContainMessage("to"))
+		{
+			toLevel = (int)msg.GetMessage("to");
+		}
 	}
 
 	void OnGrowFirstFlower( Message msg )
@@ -278,15 +283,32 @@ public class LogicManager : MonoBehaviour {
 	void AllBlackEndLevel( Message msg )
 	{
 		DOTween.KillAll();
-		AsyncOperation AO = SceneManager.LoadSceneAsync( Global.NextLevel());
-		StartCoroutine( LoadNextLevel( AO ));
+		string nextLevel = (toLevel == -1)? Global.NextLevel() : Global.GetLevel( toLevel );
+		StartCoroutine( LoadNextLevel( nextLevel ));
+
+		toLevel = -1;
 	}
 
-	IEnumerator LoadNextLevel( AsyncOperation AO )
+	IEnumerator LoadNextLevel( string nextLevel )
 	{
+		float timer = 0f;
+
+		Sprite load = Global.GetLoadLevelImageInThisLevel();
+		if ( load != null )
+		{
+			FunctionWindows funcWin = (FunctionWindows)FindObjectOfType( typeof(FunctionWindows));
+
+			if ( funcWin != null )
+			{
+				funcWin.SetLoadLevelImage(load);
+			}
+
+			timer = 7f;
+		}
+
+		AsyncOperation AO = SceneManager.LoadSceneAsync( nextLevel );
 		AO.allowSceneActivation = false;
 
-		float timer = 0f; 
 		while( ! AO.isDone && timer > 0 )
 		{	
 			timer -= Time.deltaTime;
@@ -325,6 +347,17 @@ public class LogicManager : MonoBehaviour {
 		if ( Input.GetKeyDown(KeyCode.D) && Input.GetKey(KeyCode.LeftControl))
 		{
 			EventManager.Instance.PostEvent(EventDefine.LevelDead);
+		}
+
+		if ( Input.GetKeyDown( KeyCode.A ) && Input.GetKey(KeyCode.LeftControl)  )
+		{
+
+			FunctionWindows funcWin = (FunctionWindows)FindObjectOfType( typeof(FunctionWindows));
+
+			if ( funcWin != null )
+			{
+				funcWin.SetLoadLevelImage(Global.GetLoadLevelImageInThisLevel());
+			}
 		}
 	}
 

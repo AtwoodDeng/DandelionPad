@@ -86,6 +86,7 @@ public class Grass : MonoBehaviour {
 		float angle = ( Random.Range( -1 , 1 ) < 0 ? -1f : 1f ) * Random.Range( perishAngle.min , perishAngle.max );
 		for( int i = 1 ; i < parts.Length ; ++ i )
 		{
+			parts[i].DOKill();
 			parts[i].DOLocalRotate( new Vector3( 0 , 0 , angle ) , perishTime ).SetRelative(true).SetDelay( Random.Range( 0,1f));;
 		}
 	}
@@ -94,6 +95,7 @@ public class Grass : MonoBehaviour {
 	{
 		for( int i = 1 ; i < parts.Length ; ++ i )
 		{
+			parts[i].DOKill();
 			parts[i].DOScale( 0 , perishTime ).SetDelay( 1f - i * 0.2f );
 		}
 

@@ -72,6 +72,12 @@ public class Global {
 		"alvlFourRock",
 	};
 
+	static public string[] inactiveZoomLevel =
+	{
+		"begin",
+		"alvlStrike",
+	};
+
 	static public float GaussSigma = 2.5f;
 	static public int GaussSize = 9;
 
@@ -95,6 +101,11 @@ public class Global {
 			i ++;
 		return levelNames[(i+1) % levelNames.Length];
 
+	}
+
+	static public string GetLevel( int index )
+	{
+		return levelNames[index];
 	}
 
 	static public string BGM_PATH = "Prefab/System/BGM";
@@ -124,7 +135,7 @@ public class Global {
 		}
 	}
 
-	static public float zoomFadeTime = 1.88f;
+	static public float zoomFadeTime = 1.33f;
 
 	static public float GetRandomMinMax( MaxMin mm )
 	{
@@ -138,8 +149,44 @@ public class Global {
 	static public Color DefaultTrailColor = new Color( 0.5f , 0.5f , 0.5f );
 
 	static public Dictionary<string,string> LoadImageDict = new Dictionary<string, string>
-	{ {"begin" , "teach" },
+	{ 
+		{"default" , "cliff&flowerDistance&flowerGrow&button"},
+		{"alvlResize" , "spread" },
+		{"alvlFourRock" , "perspective" },
+		{"alvlWind" , "windArrow" },
+		{"alvlIvyWall" , "windStone" },
 	};
+
+	static public string LOADLEVEL_IMG_PATH = "Img/LoadLevel/";
+	static public Sprite GetLoadLevelImageInThisLevel()
+	{
+		string levelName = SceneManager.GetActiveScene().name;
+		string imgList = "";
+
+		if ( LoadImageDict.ContainsKey( levelName ) )
+		{
+			imgList = LoadImageDict[levelName];
+		}else
+		{
+			return null;
+		}
+
+		string[] imgs = imgList.Split('&');
+		string imgName = imgs[Random.Range( 0 , imgs.Length)];
+
+		string path = LOADLEVEL_IMG_PATH + "loadlevel-" + imgName;
+		Texture2D tex = Resources.Load<Texture2D>( path );
+		if ( tex != null )
+			Debug.Log("tex " + tex.name );
+		
+		Rect rec = new Rect(0,0,tex.width ,tex.height );
+		Sprite res = Sprite.Create( tex , rec , new Vector2(0.5f,0.5f) , 100);
+//		Sprite res = Resources.Load<Sprite>( path );
+		Debug.Log( "path " + path );
+		Debug.Log( "res " + res );
+
+		return res;
+	}
 }
 
 [System.SerializableAttribute]

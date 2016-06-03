@@ -15,6 +15,8 @@ public class FunctionWindows : MonoBehaviour {
 	[SerializeField] Button retryButton;
 	[SerializeField] Button[] ArrowButtons;
 	[SerializeField] Button eyeButton;
+	[SerializeField] Image loadLevelImage;
+	[SerializeField] Text loadLevelText;
 
 	[SerializeField] GameObject setting;
 	[SerializeField] Slider musicVolumeSlider;
@@ -133,7 +135,7 @@ public class FunctionWindows : MonoBehaviour {
 
 		if ( zoomButton != null )
 			zoomButton.interactable = false;
-		StartCoroutine(ActiveButton(Global.zoomFadeTime , zoomButton));
+		StartCoroutine(ActiveButton(Global.zoomFadeTime * 0.8f  , zoomButton));
 	}
 
 
@@ -161,6 +163,14 @@ public class FunctionWindows : MonoBehaviour {
 			{
 				windButton.interactable = false;
 			}
+
+		zoomButton.interactable = true;
+		foreach( string name in Global.inactiveZoomLevel )
+			if ( name == SceneManager.GetActiveScene().name )
+			{
+				zoomButton.interactable = false;
+			}
+		
 	}
 
 	bool isSetting = false;
@@ -200,5 +210,18 @@ public class FunctionWindows : MonoBehaviour {
 	public void OnMenu()
 	{
 		SceneManager.LoadScene( "begin" );
+	}
+
+	public void SetLoadLevelImage( Sprite sprite )
+	{
+		if ( loadLevelImage != null )
+		{
+			loadLevelImage.sprite = sprite;
+			loadLevelImage.enabled = true;
+			loadLevelImage.DOFade( 0 , 0 );
+			loadLevelImage.DOFade( 1f , 1.3f );
+		}
+		if ( loadLevelText!= null )
+			loadLevelText.enabled = true;
 	}
 }

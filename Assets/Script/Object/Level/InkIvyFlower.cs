@@ -10,6 +10,8 @@ public class InkIvyFlower : MonoBehaviour {
 	[SerializeField] float growChance = 0.5f;
 	[SerializeField] float growTime = 2f;
 	[SerializeField] AudioSource sound;
+	[SerializeField] Color fromColor;
+	[SerializeField] Color toColor;
 
 	static int number = 0;
 
@@ -23,7 +25,9 @@ public class InkIvyFlower : MonoBehaviour {
 		initScale = transform.localScale.x * Random.Range( 0.8f , 1.2f );
 		spriteRender.transform.localRotation = Quaternion.Euler( new Vector3( 0 , 0 , Random.value * 360f ));
 		collider.enabled =false;
-		spriteRender.color = new Color( Random.Range( 133f , 200f ) / 255f  ,  0.9f  , 0.36f );
+		Color col = Color.Lerp( fromColor , toColor , Random.Range( 0 , 1f ) );
+		col.a = Mathf.Lerp( fromColor.a , toColor.a , Random.Range( 0 , 1f ));
+		spriteRender.color = col;
 		if ( sound == null )
 			sound = GetComponent<AudioSource>();
 		if ( sound != null )

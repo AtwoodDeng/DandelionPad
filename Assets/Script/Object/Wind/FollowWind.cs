@@ -12,6 +12,7 @@ public class FollowWind : MonoBehaviour , WindSensable {
 	[SerializeField] protected float senseImpuse;
 	[SerializeField] MaxMin swingRange;
 	[SerializeField] protected float controlDrag;
+	[SerializeField] float volumeSense = 1f;
 	[SerializeField] AudioSource touchSound;
 	[SerializeField] AudioSource blowSound;
 
@@ -46,7 +47,7 @@ public class FollowWind : MonoBehaviour , WindSensable {
 
 		if ( touchSound != null && !touchSound.isPlaying )
 		{
-			touchSound.volume = torque / senseImpuse;
+			touchSound.volume = torque / senseImpuse * volumeSense;
 			touchSound.Play(); 
 		}
 

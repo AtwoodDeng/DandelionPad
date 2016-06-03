@@ -409,12 +409,14 @@ public class Flower3D : Flower , WindSensable {
 
 		for( int i = 0 ; i < stems.Length ; ++ i )
 		{
+			stems[i].transform.DOKill();
 			stems[i].transform.DOLocalRotate( new Vector3( 0 , 0 , stemRotateAngle ) , perishTime ).SetRelative(true).SetDelay( Random.Range( 0,1f));
 		}
 
 		for( int i = 0 ; i < leafList.Count ; ++ i )
 		{
 			float leafRotateAngle = Random.Range( perish3DPara.leafRotateAngle.min , perish3DPara.leafRotateAngle.max ) * ( ( Random.Range( -1f , 1f ) < 0) ? -1f : 1f );	
+			leafList[i].transform.DOKill();
 			leafList[i].transform.DOLocalRotate(new Vector3( 0 , 0 , leafRotateAngle ) , perishTime ).SetRelative(true).SetDelay( Random.Range( 0,1f));
 			leafList[i].transform.DOLocalMoveY( Random.Range( perish3DPara.leafPerishMoveY.min ,perish3DPara.leafPerishMoveY.max ) , perishTime )
 				.SetRelative(true)
