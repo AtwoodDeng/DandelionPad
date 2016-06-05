@@ -96,4 +96,9 @@ public class SelectLevelWindow : MonoBehaviour {
 
 		HideButton( fadeTime );
 	}
+
+	public void OnQuit()
+	{
+		Application.Quit();
+	}
 }

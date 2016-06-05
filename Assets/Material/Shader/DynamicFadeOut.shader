@@ -45,7 +45,7 @@
 			fixed4 _Color;
 			float _FadePos;
 			float _FadeRange;
-			float4 _CoverRec[25];
+			float4 _CoverRec[10];
 			int _TemIndex;
 			int _CountNum;
 			float _BlurAmount;
