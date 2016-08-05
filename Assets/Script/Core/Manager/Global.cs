@@ -151,10 +151,10 @@ public class Global {
 	static public Dictionary<string,string> LoadImageDict = new Dictionary<string, string>
 	{ 
 		{"default" , "cliff&flowerDistance&flowerGrow&button"},
-		{"alvlResize" , "spread" },
-		{"alvlFourRock" , "perspective" },
-		{"alvlWind" , "windArrow" },
-		{"alvlIvyWall" , "windStone" },
+//		{"alvlResize" , "spread" },
+//		{"alvlFourRock" , "perspective" },
+//		{"alvlWind" , "windArrow" },
+//		{"alvlIvyWall" , "windStone" },
 	};
 
 	static public string LOADLEVEL_IMG_PATH = "Img/LoadLevel/";
