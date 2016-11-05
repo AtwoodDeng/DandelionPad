@@ -42,6 +42,8 @@ Thumbs.db
 # Custom defined #
 # ============   #
 
+*.mp4
+*.mov
 *.psd
 
 *.sublime-workspace

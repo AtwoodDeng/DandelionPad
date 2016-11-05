@@ -1,4 +1,6 @@
-﻿Shader "Custom/SandSpriteSoftLight"
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "Custom/SandSpriteSoftLight"
 {
 	Properties
 	{
@@ -38,7 +40,7 @@
 			{
 				v2f o;
 				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
-                o.wpos = mul (_Object2World, v.vertex).xyz;
+                o.wpos = mul (unity_ObjectToWorld, v.vertex).xyz;
 				o.uv = v.uv;
 				return o;
 			}

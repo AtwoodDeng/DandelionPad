@@ -100,14 +100,14 @@ public class Land : MonoBehaviour {
 
 	void OnEnable()
 	{
-		EventManager.Instance.RegistersEvent(EventDefine.GrowFlowerOn, OnGrowFlowerOn);
-		EventManager.Instance.RegistersEvent(EventDefine.BloomFlower , OnBloomFlower );
+		EventManager.Instance.RegistersEvent( EventDefine.GrowFlowerOn, OnGrowFlowerOn );
+		EventManager.Instance.RegistersEvent( EventDefine.BloomFlower , OnBloomFlower );
 	}
 
 	void OnDisable()
 	{
-		EventManager.Instance.UnregistersEvent(EventDefine.GrowFlowerOn, OnGrowFlowerOn);
-		EventManager.Instance.UnregistersEvent(EventDefine.BloomFlower , OnBloomFlower );
+		EventManager.Instance.UnregistersEvent( EventDefine.GrowFlowerOn, OnGrowFlowerOn );
+		EventManager.Instance.UnregistersEvent( EventDefine.BloomFlower , OnBloomFlower );
 	}
 
 	void OnBloomFlower( Message msg )
@@ -162,11 +162,10 @@ public class Land : MonoBehaviour {
 	{
 		gameObject.tag = "Land";
 
-
-
 		if ( grassPrefab == null )
 		{
 			grassPrefab = Resources.Load( "Prefab/Rock/Grass") as GameObject;
+
 		}
 
 	}

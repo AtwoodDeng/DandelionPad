@@ -103,6 +103,21 @@ public class Global {
 
 	}
 
+	static public string LastLevel()
+	{
+		return levelNames[LastLevelIndex()];
+	}
+
+	static public int LastLevelIndex()
+	{
+		string nowLevel = SceneManager.GetActiveScene().name;
+		int i = 0 ;
+		while( i < levelNames.Length && levelNames[i] != nowLevel )
+			i ++;
+		return (i-1) % levelNames.Length;
+		
+	}
+
 	static public string GetLevel( int index )
 	{
 		return levelNames[index];

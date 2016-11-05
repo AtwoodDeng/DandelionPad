@@ -121,7 +121,17 @@ public class Petal : MonoBehaviour  {
 	}
 
 
-    void OnCollisionEnter2D(Collision2D coll)
+//    void OnCollisionEnter2D(Collision2D coll)
+//	{
+//		Land land = coll.gameObject.GetComponent<Land>();
+//		if(land != null || coll.gameObject.tag == Global.LAND_TAG)
+//		{
+//			OnLand(coll);
+//		}
+//	}
+
+	bool isLanded = false;
+	void OnCollisionEnter(Collision coll)
 	{
 		Land land = coll.gameObject.GetComponent<Land>();
 		if(land != null || coll.gameObject.tag == Global.LAND_TAG)
@@ -130,13 +140,16 @@ public class Petal : MonoBehaviour  {
 		}
 	}
 
-
-	void OnCollisionEnter(Collision coll)
+	void OnCollisionStay( Collision coll )
 	{
-		Land land = coll.gameObject.GetComponent<Land>();
-		if(land != null || coll.gameObject.tag == Global.LAND_TAG)
+		if ( !isLanded )
 		{
-			OnLand(coll);
+			Land land = coll.gameObject.GetComponent<Land>();
+			if(land != null || coll.gameObject.tag == Global.LAND_TAG)
+			{
+				OnLand(coll);
+			}
+			
 		}
 	}
 
@@ -152,16 +165,18 @@ public class Petal : MonoBehaviour  {
 //		}
 //	}
 
-	public void OnLand(Collision2D coll)
-	{
-		OnLand( Global.V2ToV3( coll.contacts[0].point )
-			, Global.V2ToV3( coll.contacts[0].normal ) 
-			, coll.collider.gameObject );
-	}
+//	public void OnLand(Collision2D coll)
+//	{
+//		OnLand( Global.V2ToV3( coll.contacts[0].point )
+//			, Global.V2ToV3( coll.contacts[0].normal ) 
+//			, coll.collider.gameObject );
+//		isLanded = true;
+//	}
 
 	public void OnLand(Collision coll)
 	{
 		OnLand( coll.contacts[0].point , coll.contacts[0].normal , coll.collider.gameObject );
+		isLanded = true;
 	}
 
 	protected Message destoryMessage = new Message();

@@ -153,6 +153,16 @@ public class FunctionWindows : MonoBehaviour {
 			clickSound.Play();
 	}
 
+	public void OnButtonLast()
+	{
+		Message msg = new Message();
+		msg.AddMessage("to" ,Global.LastLevelIndex()  );
+		EventManager.Instance.PostEvent(EventDefine.EndLevel,msg);
+		if ( clickSound != null )
+			clickSound.Play();
+		
+	}
+
 	void Awake()
 	{
 		setting.SetActive(false);

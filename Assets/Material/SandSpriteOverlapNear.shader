@@ -1,4 +1,6 @@
-﻿Shader "Custom/SandSpriteOverlapNear"
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "Custom/SandSpriteOverlapNear"
 {
 	Properties
 	{
@@ -45,8 +47,8 @@
 			{
 				v2f o;
 				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
-                o.wpos = mul (_Object2World, v.vertex).xyz;
-                o.baspos = mul ( _Object2World, float4(0,0,0,0) ).xyz;
+                o.wpos = mul (unity_ObjectToWorld, v.vertex).xyz;
+                o.baspos = mul ( unity_ObjectToWorld, float4(0,0,0,0) ).xyz;
 				o.uv = v.uv;
 				return o;
 			}
